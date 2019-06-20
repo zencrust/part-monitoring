@@ -1,42 +1,76 @@
 import React from 'react'
 import { List, Progress } from 'antd';
-import { number } from 'prop-types';
-import { max, min } from 'moment';
+import PlaySound from '../PlaySound/index';
+import { Row, Col } from 'antd';
+import { IDisplayMessage } from '../../MqttManager';
 
-export interface alarmType{
-    title: string,
-    time: string
-};
+let timeout = 30;
 
-function calculate(time: number){
+function calculateColor(time: number){
     let r = 0;
-    let g = 100;
+    let g = 20;
     let b = 20;
-    let c = 500;
-    r = Math.min((time/c), 1) * 255;
-    g = Math.max(0, 1- (time/c)) * 255;
+    r = Math.min((time/timeout), 1) * 255;
+    b = Math.max(0, 1- (time/timeout)) * 255;
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-function percentage(time: number){
-    let c = 500;
-    return Math.min((time/c), 1) * 100;
+function appendzero(num: number){
+    if(num >= 10){
+        return num.toString();
+    }
+
+    return "0"+ num.toString();
 }
 
-const AlarmList = (props: {data: alarmType[]}) => {
+function ToTimeFormat(num: string | Number) {
+    var sec_num = Number(num); // don't forget the second param
+    var hours   = Math.floor(sec_num / 3600);
+    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+    
+    return appendzero(hours) +':' + appendzero(minutes) +':'+ appendzero(seconds);
+}
+
+function ShouldPlayAlarm(alarms: IDisplayMessage[]){
+    for (let alarm in alarms) {
+        if (Number(alarms[alarm].time) > timeout) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+const AlarmList = (props: {alarms: IDisplayMessage[]}) => {
+    
+    let percentage = (time: number) => {
+        return Math.min((time/timeout), 1) * 100;
+    }
+
     return (
         <div>
-            <List dataSource={props.data} itemLayout="horizontal"
+            <PlaySound playSound={ShouldPlayAlarm(props.alarms)}/>
+            <List dataSource={props.alarms} itemLayout="horizontal"
                 renderItem={item => (
-                    <List.Item style={{ background: calculate(Number(item.time)), margin: '2px 3px', padding: '5px' }}>
+                    <List.Item style={{ background: calculateColor(Number(item.time)), margin: '2px 3px', padding: '5px', minHeight:'100px', marginBottom:'10px'}}>
                         <List.Item.Meta
-                            title={<div>{item.title}</div>}
-                            description={
+                            title={                               
                             <div>
-                                <div>{item.time} seconds elasped</div>
-                                <Progress percent={percentage(Number(item.time))} showInfo={false} status="active" />    
-                            </div>
-                            }
+                                <Row >
+                                    <Col span={18} push={6}>
+                                        <div style={{ fontSize:'33px', color:'white', textAlign:'center', marginBottom:'20px'}}>{item.title}</div>
+                                        <Progress percent={percentage(Number(item.time))} showInfo={false} status="active" strokeWidth={20} />
+                                    </Col>
+                                    <Col span={6} pull={18}>
+                                        <div style={{ color:'white',  verticalAlign:'center', alignContent:'center', textAlign:'center'}}>
+                                            <div style={{ fontSize:'20px', marginBottom:'20px'}}>Time elasped</div>
+                                            <div style={{ fontSize:'40px'}}>{ToTimeFormat(item.time)}</div>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </div>}
                         />
                     </List.Item>
                 )}

@@ -2,7 +2,7 @@ import mqtt, { IClientOptions } from "mqtt"
 
 export interface ServerStatus{
     message: string;
-    color: "success" | "processing" | "default" | "error" | "warning";
+    color: "success" | "error" | "warning" | "info" | undefined;
 }
 
 export interface IMessage{
@@ -40,17 +40,18 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
 
     var data: { [id: string] : IMessage; } = {};
 
-    setServerStatus({message:'connecting to server... ', color: "default"});
+    setServerStatus({message:'Connecting ', color: "info"});
 
     let _registerChanges = (client:mqtt.MqttClient) => {
         console.log('_registerChanges');
         client.on('message', (topic, msg) => {
-            console.log(topic);
+            //console.log(topic);
 
-            let tp = topic.split('/');
+            let [_unusedTopicName, tp ] = topic.split('/');
             let json:IMessage = JSON.parse(msg.toString());            
-            data[tp[1]] = {time: json.time, value: json.value};
+            data[tp] = {time: json.time, value: json.value};
             let val:IDisplayMessage[] = []
+
             for(let i in data){
                 if(data[i].value === 0){
                     val.push({title: i, time: data[i].time});
@@ -64,18 +65,18 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
 
     let _registerErrors = (client: mqtt.MqttClient) => {
         client.on('connect', () => {
-            console.log('connection successful');
+            console.log('Connected');
             setServerStatus({ message: 'server connected', color: "success" });
         });
         client.on('reconnect', () => {
-            console.log('connection error reconnecting...');
+            console.log('connecting error');
             if(!client.connected){
-                setServerStatus({ message: 'Server connection lost', color: "warning" });
+                setServerStatus({ message: 'connection failed', color: "warning" });
             }
         });
         client.on('error', () => {
             console.log('connection error');
-            setServerStatus({ message: 'Server connection error ', color: "error" });
+            setServerStatus({ message: 'connection failed ', color: "error" });
         });
     }
 
@@ -85,7 +86,7 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         let client  = mqtt.connect(val.mqtt_server, options);
         client.subscribe("dio/#", {qos: 2});
         console.log('connection sub', val.mqtt_server);
-        setServerStatus({message:'connecting to server... ', color: "processing"})
+        setServerStatus({message:'Connecting ', color: "warning"})
         _registerErrors(client);
         _registerChanges(client);
 

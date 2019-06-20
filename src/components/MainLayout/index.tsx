@@ -1,10 +1,9 @@
 import React from 'react';
 import './index.css';
 
-import { Layout, Menu, Icon, Badge } from 'antd';
+import { Layout, Menu, Icon, Badge, Alert } from 'antd';
 import AlarmList from '../Alarm/index';
 import Report from '../Report/index';
-import { Row, Col } from 'antd';
 
 import { SelectParam } from 'antd/lib/menu';
 import MqttManager, { ServerStatus, IDisplayMessage } from '../../MqttManager';
@@ -14,7 +13,7 @@ const { Header, Content, Footer, Sider } = Layout;
 interface IState{
   collapsed: boolean,
   content: string,
-  data: IDisplayMessage[],
+  alarms: IDisplayMessage[],
   status: ServerStatus
 }
 
@@ -23,13 +22,13 @@ export default class MainLayout extends React.Component<any, IState> {
   /**
    *
    */
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       collapsed: false,
       content: "1",
-      data: [],
-      status: {color:"processing", message:"Initializing"}
+      alarms: [],
+      status: {color:"info", message:"Initializing"}
     };
   }
 
@@ -38,7 +37,7 @@ export default class MainLayout extends React.Component<any, IState> {
       this.setState({status: val});
     }, 
     (val : IDisplayMessage[]) => {
-      this.setState({data: val});
+      this.setState({alarms: val});
       console.log(val);
     });
   }
@@ -47,8 +46,7 @@ export default class MainLayout extends React.Component<any, IState> {
     this.mqtt_sub();
   }
 
-  onCollapse = collapsed => {
-    console.log(collapsed);
+  onCollapse = (collapsed: boolean) => {
     this.setState({ collapsed });
   };
   
@@ -60,7 +58,8 @@ export default class MainLayout extends React.Component<any, IState> {
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsible collapsed={this.state.collapsed} onCollapse={this.onCollapse}>
-          <div className="logo">
+          <div className="logo" style={{margin:'5px 10px'}}>
+            <Alert message={this.state.status.message} type={this.state.status.color} showIcon style={{textAlign: "left", fontSize:15, textOverflow:'ellipsis', textJustify:'inter-word', textTransform:'capitalize'}} />
           </div>
           <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" onSelect={this.onSelect}>
             <Menu.Item key="1">
@@ -76,28 +75,21 @@ export default class MainLayout extends React.Component<any, IState> {
         <Layout>
           <Header style={{ background: '#fff', padding: 0, textAlign: "center", fontSize:20}}>
           <div>
-            <Row>
-              <Col span={18} push={4}>
-                <h1 className="title-header">Part Monitoring</h1>
-              </Col>
-              <Col span={4} pull={18}>
-                <Badge text={this.state.status.message} status={this.state.status.color} style={{textAlign: "left", fontSize:10}} />
-              </Col>
-            </Row>
+              <h1 className="title-header" style={{ textTransform: 'uppercase', textOverflow:'ellipsis' }}>Smart Dashboard</h1>
           </div>
           </Header>
           <Content style={{ margin: '16px' }}>
             <div style={{ padding: 24, background: '#fff', minHeight: 360 }}>
             {(() => {
               switch (this.state.content) {
-                case "1":   return <AlarmList data={this.state.data}/>;
+                case "1":   return <AlarmList alarms={this.state.alarms}/>;
                 case "2": return <Report />;
                 default: return <div>Unknown option selected</div>;
               }
             })()}
             </div>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>part monitoring dashboard 2019 Created by Aimtech</Footer>
+          <Footer style={{ textAlign: 'center' }}>Smart Dashboard 2019 Created by Aimtech</Footer>
         </Layout>
       </Layout>
     );
