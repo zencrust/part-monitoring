@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.css": "/smartdashboard/static/css/main.859ced46.chunk.css",
+    "main.js": "/smartdashboard/static/js/main.d10daafa.chunk.js",
+    "main.js.map": "/smartdashboard/static/js/main.d10daafa.chunk.js.map",
+    "runtime~main.js": "/smartdashboard/static/js/runtime~main.490574ff.js",
+    "runtime~main.js.map": "/smartdashboard/static/js/runtime~main.490574ff.js.map",
+    "static/css/2.33bbdc9a.chunk.css": "/smartdashboard/static/css/2.33bbdc9a.chunk.css",
+    "static/js/2.2d3a7f66.chunk.js": "/smartdashboard/static/js/2.2d3a7f66.chunk.js",
+    "static/js/2.2d3a7f66.chunk.js.map": "/smartdashboard/static/js/2.2d3a7f66.chunk.js.map",
+    "index.html": "/smartdashboard/index.html",
+    "precache-manifest.bcf0a0314a7c48362f5b65f700a580e4.js": "/smartdashboard/precache-manifest.bcf0a0314a7c48362f5b65f700a580e4.js",
+    "service-worker.js": "/smartdashboard/service-worker.js",
+    "static/css/2.33bbdc9a.chunk.css.map": "/smartdashboard/static/css/2.33bbdc9a.chunk.css.map",
+    "static/css/main.859ced46.chunk.css.map": "/smartdashboard/static/css/main.859ced46.chunk.css.map"
+  }
+}
