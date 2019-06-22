@@ -24,10 +24,10 @@ function appendzero(num: number){
 }
 
 function ToTimeFormat(num: string | Number) {
-    var sec_num = Number(num); // don't forget the second param
-    var hours   = Math.floor(sec_num / 3600);
-    var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
-    var seconds = sec_num - (hours * 3600) - (minutes * 60);
+    let sec_num = Number(num); // don't forget the second param
+    let hours   = Math.floor(sec_num / 3600);
+    let minutes = Math.floor((sec_num - (hours * 3600)) / 60);
+    let seconds = sec_num - (hours * 3600) - (minutes * 60);
     
     return appendzero(hours) +':' + appendzero(minutes) +':'+ appendzero(seconds);
 }

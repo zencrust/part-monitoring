@@ -38,7 +38,7 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         rejectUnauthorized: false
     }
 
-    var data: { [id: string] : IMessage; } = {};
+    let data: { [id: string] : IMessage; } = {};
 
     setServerStatus({message:'Connecting ', color: "info"});
 
@@ -53,7 +53,7 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
             let val:IDisplayMessage[] = []
 
             for(let i in data){
-                if(data[i].value === 0){
+                if(data[i].value === 1){
                     val.push({title: i, time: data[i].time});
                 }
             }
@@ -66,12 +66,12 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
     let _registerErrors = (client: mqtt.MqttClient) => {
         client.on('connect', () => {
             console.log('Connected');
-            setServerStatus({ message: 'server connected', color: "success" });
+            setServerStatus({ message: 'Connection succeessful', color: "success" });
         });
         client.on('reconnect', () => {
             console.log('connecting error');
             if(!client.connected){
-                setServerStatus({ message: 'connection failed', color: "warning" });
+                setServerStatus({ message: 'connection failed', color: "error" });
             }
         });
         client.on('error', () => {
