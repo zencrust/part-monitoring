@@ -1,3 +1,6 @@
 {
-    "mqtt_server": "wss://192.168.0.101:9001/mqtt"
+    "mqtt_server": "postman.cloudmqtt.com",
+    "port":33997,
+    "user_name": "lmhadnaq",
+    "password": "YP-lWgn3cYuL"
 }
