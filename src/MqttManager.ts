@@ -15,8 +15,15 @@ export interface IDisplayMessage{
     title: string
 }
 
+export interface ISettings{
+    mqtt_server: string;
+    user_name?: string;
+    password?: string;
+    port: number;
+}
+
 export default function MqttManager(setServerStatus:(val: ServerStatus) => void, setValues:(val: IDisplayMessage[]) => void){
-    let settings = fetch('assets/config/settings.json')
+    let settings: Promise<ISettings> = fetch('assets/config/settings.json')
                     .then(x => x.json())
                     .catch(x => console.log(x));
     let clientId = 'mqttjs_' + Math.random().toString(16).substr(2, 8);
@@ -83,7 +90,16 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
     let unmount: any = null;
     settings.then(val =>{
         //console.log(val.mqtt_server, options);
-        let client  = mqtt.connect(val.mqtt_server, options);
+        options.username = val.user_name;
+        options.password = val.password;
+        options.protocol = "wss";
+        options.servers = [{
+            host: val.mqtt_server,
+            port: val.port,
+            protocol: "wss"
+        }];
+        //console.log(val);
+        let client  = mqtt.connect(options);
         client.subscribe("dio/#", {qos: 2});
         console.log('connection sub', val.mqtt_server);
         setServerStatus({message:'Connecting ', color: "warning"})
