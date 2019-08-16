@@ -1,3 +1,4 @@
 {
-    "mqtt_server": "wss://mqtt.zencrust.cf:9001"
+    "mqtt_server": "mqtt.zencrust.cf",
+    "port": 9001
 }
