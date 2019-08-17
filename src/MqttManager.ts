@@ -53,10 +53,11 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         client.on('message', (topic, msg) => {
             //console.log(topic);
 
-            let [, deviceId, func ] = topic.split('/');
-            if(func === 'dio'){
+            let [, deviceId, func, ch ] = topic.split('/');
+            if(func === 'dio' && ch === 'Swicth Pressed'){
 
                 let utcSeconds = parseInt(msg.toString());
+                utcSeconds = isNaN(utcSeconds) ? 0 : utcSeconds;
                 data[deviceId] = {time:utcSeconds};    
                 CalculateAndSetValue(data, setValues);
             }
@@ -90,6 +91,7 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         options.username = val.user_name;
         options.password = val.password;
         options.protocol = "wss";
+        options.clean = true;
         options.servers = [{
             host: val.mqtt_server,
             port: val.port,

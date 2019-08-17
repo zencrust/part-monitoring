@@ -60,7 +60,7 @@ export default class MainLayout extends React.Component<any, IState> {
               <AlarmList alarms={this.state.alarms} />
             </div>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>Smart Dashboard 2019 Created by Aimtech</Footer>
+          <Footer style={{ textAlign: 'center' }}>Smart Dashboard 2019</Footer>
         </Layout>
       </Layout>
     );
