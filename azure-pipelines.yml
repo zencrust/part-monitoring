@@ -34,11 +34,9 @@ steps:
     publishLocation: Container
     TargetPath: .
 
-- task: CopyFilesOverSSH@0
-  inputs:
-    sshEndpoint: 'DO-droplet1'
-    sourceFolder: 'build'
-    contents: '**'
-    targetFolder: 'part-monitor'
-    cleanTargetFolder: true
-    failOnEmptySource: true
+- script: |
+  docker build -t $(dockerId)/$(imageName):$(Build.BuildNumber) -t $(dockerId)/$(imageName):latest .
+  docker login -u $(dockerId) -p $(dockerPassword)
+  docker push $(dockerId)/$(imageName):$(Build.BuildNumber)
+  docker push $(dockerId)/$(imageName):latest
+displayName: 'Docker build and push'

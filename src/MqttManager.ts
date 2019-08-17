@@ -6,12 +6,11 @@ export interface ServerStatus{
 }
 
 export interface IMessage{
-    time: string,
-    value: number,
+    time: number,
 }
 
 export interface IDisplayMessage{
-    time: string,
+    time: number,
     title: string
 }
 
@@ -54,19 +53,17 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         client.on('message', (topic, msg) => {
             //console.log(topic);
 
-            let [_unusedTopicName, tp ] = topic.split('/');
-            let json:IMessage = JSON.parse(msg.toString());            
-            data[tp] = {time: json.time, value: json.value};
-            let val:IDisplayMessage[] = []
+            let [, deviceId, func ] = topic.split('/');
+            if(func === 'dio'){
 
-            for(let i in data){
-                if(data[i].value === 1){
-                    val.push({title: i, time: data[i].time});
-                }
+                let utcSeconds = parseInt(msg.toString());
+                data[deviceId] = {time:utcSeconds};    
+                CalculateAndSetValue(data, setValues);
             }
-            
-            val.sort((a, b) => Number(b.time) - Number(a.time));
-            setValues(val);
+            else if (func === 'heartbeat') {
+                data[deviceId] = {time:0}; //disconnected. error out now
+                CalculateAndSetValue(data, setValues);
+            }
         });
     }
 
@@ -100,7 +97,7 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         }];
         //console.log(val);
         let client  = mqtt.connect(options);
-        client.subscribe("dio/#", {qos: 2});
+        client.subscribe("partalarm/#", {qos: 2});
         console.log('connection sub', val.mqtt_server);
         setServerStatus({message:'Connecting ', color: "warning"})
         _registerErrors(client);
@@ -109,7 +106,21 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         unmount = () => {
             console.log('disconnecting');
             client.end(true)};
+    })
+    .catch(e => {
+        console.log("error reading status file", e);
     });
 
     return unmount;
 }
+function CalculateAndSetValue(data: { [id: string]: IMessage; }, setValues: (val: IDisplayMessage[]) => void) {
+    let val: IDisplayMessage[] = [];
+    for (let i in data) {
+        if (data[i].time !== 0) {
+            val.push({ title: i, time: data[i].time });
+        }
+    }
+    val.sort((a, b) => Number(b.time) - Number(a.time));
+    setValues(val);
+}
+
