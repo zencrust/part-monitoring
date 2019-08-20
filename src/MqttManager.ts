@@ -2,7 +2,7 @@ import mqtt, { IClientOptions } from "mqtt"
 
 export interface ServerStatus{
     message: string;
-    color: "success" | "error" | "warning" | "info" | undefined;
+    color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
 export interface IMessage{
@@ -76,12 +76,12 @@ export default function MqttManager(setServerStatus:(val: ServerStatus) => void,
         client.on('reconnect', () => {
             console.log('connecting error');
             if(!client.connected){
-                setServerStatus({ message: 'connection failed', color: "error" });
+                setServerStatus({ message: 'connection failed', color: "danger" });
             }
         });
         client.on('error', () => {
             console.log('connection error');
-            setServerStatus({ message: 'connection failed ', color: "error" });
+            setServerStatus({ message: 'connection failed ', color: "danger" });
         });
     }
 
@@ -122,7 +122,7 @@ function CalculateAndSetValue(data: { [id: string]: IMessage; }, setValues: (val
             val.push({ title: i, time: data[i].time });
         }
     }
-    val.sort((a, b) => Number(b.time) - Number(a.time));
+    val.sort((a, b) => a.time - b.time);
     setValues(val);
 }
 

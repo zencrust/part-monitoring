@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import "./styles.scss";
 import MainLayout from './components/MainLayout/index';
 
 import * as serviceWorker from './serviceWorker';
+
 
 ReactDOM.render(<MainLayout />, document.getElementById('root'));
 

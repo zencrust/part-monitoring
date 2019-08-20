@@ -1,8 +1,9 @@
 import React from 'react'
-import { List, Progress } from 'antd';
+import {List, Card, Content, Progress} from 'rbx';
 import PlaySound from '../PlaySound/index';
-import { Row, Col } from 'antd';
 import { IDisplayMessage } from '../../MqttManager';
+import { ToTimeFormat } from '../../Utils/index'
+import "./styles.scss";
 
 
 let timeout = 30;
@@ -13,26 +14,15 @@ interface IValueState {
 }
 
 function calculateColor(time: number){
-    let g = 20;
-    let r = Math.min((time/timeout), 1) * 255;
-    let b = Math.max(0, 1- (time/timeout)) * 255;
-    return `rgb(${r}, ${g}, ${b})`;
-}
-
-function appendzero(num: number){
-    if(num >= 10){
-        return num.toString();
+    let t = time/timeout;
+    if(t < 0.5){
+        return "success";
+    }
+    if(t < 1){ 
+        return "warning";
     }
 
-    return "0"+ num.toString();
-}
-
-function ToTimeFormat(diff: number) {
-    let hours   = Math.floor(diff / 3600);
-    let minutes = Math.floor((diff - (hours * 3600)) / 60);
-    let seconds = Math.floor(diff - (hours * 3600) - (minutes * 60));
-    
-    return appendzero(hours) +':' + appendzero(minutes) +':'+ appendzero(seconds);
+    return "danger";
 }
 
 function timeDiff(utcSeconds: number){
@@ -44,9 +34,6 @@ function ShouldPlayAlarm(alarms: IValueState[]){
     return !alarms.every(x => x.diff < timeout);
 }
 
-let percentage = (time: number) => {
-    return Math.min((time/timeout), 1) * 100;
-}
 function calculateState(alarms : IDisplayMessage[]){
     return alarms.map(x =>
         {
@@ -85,29 +72,30 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[]},{value: IVa
     return (
         <div>
             <PlaySound playSound={ShouldPlayAlarm(this.state.value)}/>
-            <List dataSource={this.state.value} itemLayout="horizontal" 
-                renderItem={item => (
-                    <List.Item style={{ background: calculateColor(item.diff), margin: '2px 3px', padding: '5px', minHeight:'100px', marginBottom:'10px'}}>
-                        <List.Item.Meta
-                            title={                               
-                            <div>
-                                <Row >
-                                    <Col span={18} push={6}>
-                                        <div style={{ fontSize:'33px', color:'white', textAlign:'center', marginBottom:'20px'}}>{item.message.title}</div>
-                                        <Progress percent={percentage(Number(item.diff))} showInfo={false} status="active" strokeWidth={20} />
-                                    </Col>
-                                    <Col span={6} pull={18}>
-                                        <div style={{ color:'white',  verticalAlign:'center', alignContent:'center', textAlign:'center'}}>
-                                            <div style={{ fontSize:'20px', marginBottom:'20px'}}>Time elasped</div>
-                                            <div style={{ fontSize:'40px'}}>{ToTimeFormat(item.diff)}</div>
+            <List>
+                {this.state.value.map(item => 
+                    <List.Item>
+                        <Card>
+                            <Card.Header>
+                                <Card.Header.Title>
+                                    {/* <div style={{ background: calculateColor(item.diff) }}> */}
+                                        <div className="headerTitle" style={{ fontSize:'33px'}}>
+                                            <div className="msgTitle">{item.message.title} has requested for new kits.</div>
+                                            <div className="msgTime">Time Elasped: <time
+                                            dateTime={ToTimeFormat(item.diff)}>{ToTimeFormat(item.diff)}</time></div>
                                         </div>
-                                    </Col>
-                                </Row>
-                            </div>}
-                        />
+                                    {/* </div> */}
+                                </Card.Header.Title>
+                            </Card.Header>
+                            <Card.Content>
+                                <Content>
+                                    <Progress value={item.diff} min={0} max={timeout} color={calculateColor(item.diff)}/>
+                                </Content>
+                            </Card.Content>
+                        </Card>
                     </List.Item>
                 )}
-            />
+            </List>
         </div>
     )}
 }

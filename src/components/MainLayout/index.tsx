@@ -1,12 +1,12 @@
 import React from 'react';
-import './index.css';
+import './styles.scss';
 
-import { Layout, Alert } from 'antd';
 import AlarmList from '../Alarm/index';
-
+import { Level, Generic, Footer, Content, Message, Navbar } from 'rbx';
 import MqttManager, { ServerStatus, IDisplayMessage } from '../../MqttManager';
-
-const { Header, Content, Footer } = Layout;
+import Report from '../Report';
+import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
+import { NotFound } from '../404';
 
 interface IState {
   collapsed: boolean,
@@ -46,23 +46,45 @@ export default class MainLayout extends React.Component<any, IState> {
   }
 
   render() {
+    let MainComponent = () => {
+      return (
+        <AlarmList alarms={this.state.alarms} />
+      )
+    };
+
     return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Layout>
-          <Header style={{ background: '#fff', padding: 0, textAlign: "center", fontSize: 20 }}>
-            <div style={{marginBottom:'10px'}}>
-              <h1 className="title-header" style={{ textTransform: 'uppercase', textOverflow: 'ellipsis' }}>Smart Dashboard</h1>
-              <Alert message={this.state.status.message} type={this.state.status.color} showIcon style={{ textAlign: "left", fontSize: 15, textOverflow: 'ellipsis', textJustify: 'inter-word', textTransform: 'capitalize' }} />
-            </div>
-          </Header>
-          <Content style={{ margin: '16px' }}>
-            <div style={{ padding: 24, background: '#fff', minHeight: 360, marginTop:'20px' }}>
-              <AlarmList alarms={this.state.alarms} />
-            </div>
+      <div>
+        <Navbar color="dark">
+          <Navbar.Brand>
+            <Navbar.Item href="#">
+              <div className="title-header">
+                Smart Dashboard
+                </div>
+            </Navbar.Item>
+          </Navbar.Brand>
+          <Navbar.Menu>
+            <Navbar.Segment align="end">
+              <Navbar.Item href="/">Home</Navbar.Item>
+              <Navbar.Item href="/report">Report</Navbar.Item>
+            </Navbar.Segment>
+          </Navbar.Menu>
+        </Navbar>
+        <BrowserRouter>
+          <Content>
+            <Message color={this.state.status.color} className="Alert-banner">
+              <Message.Header>
+                {this.state.status.message}
+              </Message.Header>
+            </Message>
+            <Switch>
+              <Route exact path="/" component={MainComponent} />
+              <Route path="/report" component={Report} />
+              <Route component={NotFound} />
+            </Switch>
           </Content>
           <Footer style={{ textAlign: 'center' }}>Smart Dashboard 2019</Footer>
-        </Layout>
-      </Layout>
+        </BrowserRouter>
+      </div>
     );
   }
 }
