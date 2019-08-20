@@ -55,13 +55,16 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[]},{value: IVa
 
     tick() {
         let c = calculateState(this.props.alarms);
+        if(this.state.value.length === 0 &&  c.length === 0) {
+            return;
+        }
         this.setState({
             value: c            
         });
     }
 
     componentDidMount() {
-    this.interval = setInterval(() => this.tick(), 1000);
+        this.interval = setInterval(() => this.tick(), 1000);
     }
 
     componentWillUnmount() {
@@ -74,7 +77,7 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[]},{value: IVa
             <PlaySound playSound={ShouldPlayAlarm(this.state.value)}/>
             <List>
                 {this.state.value.map(item => 
-                    <List.Item>
+                    <List.Item key={item.message.title}>
                         <Card>
                             <Card.Header>
                                 <Card.Header.Title>

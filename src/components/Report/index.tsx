@@ -58,7 +58,9 @@ export default class MainLayout extends React.Component<any, IState> {
                             </Card.Header>
                             <Card.Content>
                                 <Content>
-                                    <div style={{ fontSize: '18px' }}>{item.name} was active for duation: {ToTimeFormat(item.duration)}</div>
+                                    <div style={{ fontSize: '18px' }}>{item.name} was waiting for a duation of : 
+                                        { ToTimeFormat(item.duration)}                                    
+                                    </div>
                                 </Content>
                             </Card.Content>
                             </Card>

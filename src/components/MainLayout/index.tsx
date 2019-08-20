@@ -2,10 +2,10 @@ import React from 'react';
 import './styles.scss';
 
 import AlarmList from '../Alarm/index';
-import { Level, Generic, Footer, Content, Message, Navbar } from 'rbx';
+import { Footer, Content, Message, Navbar } from 'rbx';
 import MqttManager, { ServerStatus, IDisplayMessage } from '../../MqttManager';
 import Report from '../Report';
-import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
+import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import { NotFound } from '../404';
 
 interface IState {
