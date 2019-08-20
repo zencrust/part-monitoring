@@ -1,20 +1,23 @@
 import React from 'react'
 import {List, Card, Content, Progress} from 'rbx';
 import PlaySound from '../PlaySound/index';
-import { IDisplayMessage } from '../../MqttManager';
+import { IDisplayMessage, ISettings } from '../../MqttManager';
 import { ToTimeFormat } from '../../Utils/index'
 import "./styles.scss";
+import { isUndefined } from 'util';
 
-
-let timeout = 30;
 
 interface IValueState {
     message:IDisplayMessage;
     diff:number;
 }
 
-function calculateColor(time: number){
-    let t = time/timeout;
+function calculateColor(time: number, settings?:ISettings){
+    if(isUndefined(settings)){
+        return "warning"; 
+    }
+
+    let t = time / settings.MaxWaitTime;
     if(t < 0.5){
         return "success";
     }
@@ -30,8 +33,12 @@ function timeDiff(utcSeconds: number){
     return diff;
 }
 
-function ShouldPlayAlarm(alarms: IValueState[]){
-    return !alarms.every(x => x.diff < timeout);
+function ShouldPlayAlarm(alarms: IValueState[], settings?:ISettings){
+    if(isUndefined(settings)){
+        return false; 
+    }
+
+    return !alarms.every(x => x.diff < settings.MaxWaitTime);
 }
 
 function calculateState(alarms : IDisplayMessage[]){
@@ -44,7 +51,7 @@ function calculateState(alarms : IDisplayMessage[]){
     )
 }
 
-class AlarmList extends React.Component<{alarms : IDisplayMessage[]},{value: IValueState[]}> {
+class AlarmList extends React.Component<{alarms : IDisplayMessage[], settings? : ISettings},{value: IValueState[]}> {
     interval : any;
     constructor(props : {alarms : IDisplayMessage[]}){
         super(props);
@@ -72,27 +79,32 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[]},{value: IVa
     }
 
     render() {
+    if(this.state.value.length === 0){
+        return(
+            <div className="allClear">
+                No stations requested new kits
+            </div>
+        )
+    }
     return (
         <div>
-            <PlaySound playSound={ShouldPlayAlarm(this.state.value)}/>
+            <PlaySound playSound={ShouldPlayAlarm(this.state.value, this.props.settings)}/>
             <List>
                 {this.state.value.map(item => 
                     <List.Item key={item.message.title}>
                         <Card>
                             <Card.Header>
                                 <Card.Header.Title>
-                                    {/* <div style={{ background: calculateColor(item.diff) }}> */}
-                                        <div className="headerTitle" style={{ fontSize:'33px'}}>
-                                            <div className="msgTitle">{item.message.title} has requested for new kits.</div>
-                                            <div className="msgTime">Time Elasped: <time
-                                            dateTime={ToTimeFormat(item.diff)}>{ToTimeFormat(item.diff)}</time></div>
-                                        </div>
-                                    {/* </div> */}
+                                    <div className="headerTitle" style={{ fontSize:'33px'}}>
+                                        <div className="msgTitle">{item.message.title} has requested for new kits.</div>
+                                        <div className="msgTime">Time Elasped: <time
+                                        dateTime={ToTimeFormat(item.diff)}>{ToTimeFormat(item.diff)}</time></div>
+                                    </div>
                                 </Card.Header.Title>
                             </Card.Header>
                             <Card.Content>
                                 <Content>
-                                    <Progress value={item.diff} min={0} max={timeout} color={calculateColor(item.diff)}/>
+                                    <Progress value={item.diff} min={0} max={isUndefined(this.props.settings)? 30 : this.props.settings.MaxWaitTime} color={calculateColor(item.diff, this.props.settings)}/>
                                 </Content>
                             </Card.Content>
                         </Card>

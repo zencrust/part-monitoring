@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from 'react';
+import React from 'react';
 import { IStationStatus } from '../../MqttManager';
 import { Card, Content } from 'rbx';
 import "./styles.scss";
@@ -33,11 +33,16 @@ function calculateWifiSignal(isAlive: boolean, v: number): WiFiSignalIndicator {
     return "UNUSABLE";
 }
 
-let StationStatus: FunctionComponent<{ status: IStationStatus[] }> = ({status}) => {
+interface Props extends React.ComponentPropsWithoutRef<'div'>
+{
+    status: IStationStatus[];
+}
+
+let StationStatus: React.FC<Props> = p => {
     return(
     <div className="statushead">
-        {status.map(item =>
-            <Card key={item.name} className="card">
+        {p.status.map(item =>
+            <Card key={item.name} className="statusCard">
                 <Card.Header>
                     <Card.Header.Title>
                         <div className="headerTitle">

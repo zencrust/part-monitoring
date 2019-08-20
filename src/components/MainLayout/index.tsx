@@ -3,18 +3,20 @@ import './styles.scss';
 
 import AlarmList from '../Alarm/index';
 import { Footer, Content, Message, Navbar } from 'rbx';
-import MqttManager, { ServerStatus, IDisplayMessage } from '../../MqttManager';
-import Report from '../Report';
+import MqttManager, { ServerStatus, IDisplayMessage, ISettings, IStationStatus } from '../../MqttManager';
+import ReportLayout from '../Report';
 import { Route, Switch, BrowserRouter } from 'react-router-dom';
 import { NotFound } from '../404';
+import StationStatus from '../Status';
 
 interface IState {
   collapsed: boolean,
   content: string,
   alarms: IDisplayMessage[],
-  status: ServerStatus
+  status: ServerStatus,
+  settings?: ISettings,
+  stationStatus: IStationStatus[]
 }
-
 
 export default class MainLayout extends React.Component<any, IState> {
   mqtt_sub: any;
@@ -27,7 +29,9 @@ export default class MainLayout extends React.Component<any, IState> {
       collapsed: false,
       content: "1",
       alarms: [],
-      status: { color: "info", message: "Initializing" }
+      status: { color: "info", message: "Initializing" },
+      settings: undefined,
+      stationStatus: []
     };
   }
 
@@ -38,7 +42,15 @@ export default class MainLayout extends React.Component<any, IState> {
       (val: IDisplayMessage[]) => {
         this.setState({ alarms: val });
         //console.log(val);
-      });
+      },
+      (val: ISettings) => 
+      {
+        this.setState({ settings: val });
+      },
+      (val: IStationStatus[]) =>
+      {
+        this.setState({ stationStatus: val });
+      })
   }
 
   componentWillUnmount() {
@@ -48,13 +60,19 @@ export default class MainLayout extends React.Component<any, IState> {
   render() {
     let MainComponent = () => {
       return (
-        <AlarmList alarms={this.state.alarms} />
+        <AlarmList alarms={this.state.alarms} settings={this.state.settings}/>
       )
     };
 
+    let StatusComponent = () => {
+      return (
+        <StationStatus status={this.state.stationStatus}/>
+      )
+    }
+
     return (
       <div>
-        <Navbar color="dark">
+        <Navbar color="info">
           <Navbar.Brand>
             <Navbar.Item href="#">
               <div className="title-header">
@@ -63,14 +81,15 @@ export default class MainLayout extends React.Component<any, IState> {
             </Navbar.Item>
           </Navbar.Brand>
           <Navbar.Menu>
-            <Navbar.Segment align="end">
+            <Navbar.Segment align="start">
               <Navbar.Item href="/">Home</Navbar.Item>
               <Navbar.Item href="/report">Report</Navbar.Item>
-            </Navbar.Segment>
+              <Navbar.Item href="/status">Status</Navbar.Item>
+            </Navbar.Segment> 
           </Navbar.Menu>
         </Navbar>
         <BrowserRouter>
-          <Content>
+          <Content className="main-container">
             <Message color={this.state.status.color} className="Alert-banner">
               <Message.Header>
                 {this.state.status.message}
@@ -78,7 +97,8 @@ export default class MainLayout extends React.Component<any, IState> {
             </Message>
             <Switch>
               <Route exact path="/" component={MainComponent} />
-              <Route path="/report" component={Report} />
+              <Route path="/report" component={ReportLayout} />
+              <Route path="/status" component={StatusComponent} />
               <Route component={NotFound} />
             </Switch>
           </Content>

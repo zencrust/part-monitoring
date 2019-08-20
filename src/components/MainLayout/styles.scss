@@ -4,6 +4,7 @@
 
 title-header {
   text-align: left;
+  font-size: 30px;
   text-transform: uppercase;
   text-overflow: ellipsis;
 }
@@ -44,3 +45,24 @@ title-header {
   line-height: 30px;
   padding: 0 8px;
 }
+
+body {
+  height: 100%;
+  position: relative;
+ }
+
+.main-container {
+  min-height: 100vh; /* will cover the 100% of viewport */
+  overflow: hidden;
+  display: block;
+  position: relative;
+  padding-bottom: 10px; /* height of your footer */
+ }
+
+
+footer {
+  position: absolute;
+  height: 10px;
+  bottom: 0;
+  width: 100%;
+ }
