@@ -40,8 +40,12 @@ let ReportLayout: React.FC<Props> = p => {
             };
             axios.get<ILog[]>(uri, req)
             .then(logs => {
-                setLogs(logs.data);
-                setError(false);
+                if(logs.headers["content-type"] !== "text/plain; charset=utf-8"){
+                    setError(true);
+                } else {
+                    setLogs(logs.data);
+                    setError(false);
+                }
             })
             .catch(err => {
                 setError(true);
