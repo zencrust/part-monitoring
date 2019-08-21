@@ -25,6 +25,7 @@ export interface IDisplayMessage {
 export interface ISettings {
     mqtt_server: string;
     user_name?: string;
+	protocol: 'wss' | 'ws' | 'mqtt' | 'mqtts' | 'tcp' | 'ssl' | 'wx' | 'wxs';
     password?: string;
     port: number;
     MaxWaitTime: number;
@@ -147,12 +148,12 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         setSettings(val);
         options.username = val.user_name;
         options.password = val.password;
-        options.protocol = "wss";
+        options.protocol = val.protocol;
         options.clean = true;
         options.servers = [{
             host: val.mqtt_server,
             port: val.port,
-            protocol: "wss"
+            protocol: val.protocol
         }];
         //console.log(val);
         let client = mqtt.connect(options);

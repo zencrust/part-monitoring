@@ -3,5 +3,6 @@
     "port":9001,
     "user_name": "",
     "password": "",
+	"protocol": "wss",
     "MaxWaitTime": 30
 }
