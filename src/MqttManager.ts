@@ -64,16 +64,15 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
             //console.log(topic);
 
             let [, deviceId, func, ch] = topic.split('/');
-            if (func === 'dio' && ch === 'Swicth Pressed') {
+            if (func === 'dio' && ch === 'Switch Pressed') {
 
                 let utcSeconds = parseInt(msg.toString());
                 utcSeconds = isNaN(utcSeconds) ? 0 : utcSeconds;
                 data[deviceId] = { time: utcSeconds };
-                CalculateAndSetValue(data, setValues);
+                CalculateAndSetValue(data, stationStatus, setValues);
             }
             else if (func === 'heartbeat') {
                 data[deviceId] = { time: 0 }; //disconnected. error out now
-                CalculateAndSetValue(data, setValues);
                 let st = stationStatus[deviceId];
                 if(isUndefined(st)){
                     stationStatus[deviceId] = {
@@ -185,9 +184,14 @@ function SendStatus(data : {[id:string]: IStationStatus; }, callback: (val: ISta
 }
 
 
-function CalculateAndSetValue(data: { [id: string]: IMessage; }, setValues: (val: IDisplayMessage[]) => void) {
+function CalculateAndSetValue(data: { [id: string]: IMessage; }, stationStatus : {[id:string]: IStationStatus }, setValues: (val: IDisplayMessage[]) => void) {
     let val: IDisplayMessage[] = [];
     for (let i in data) {
+        let v = stationStatus[i].isConnected;
+        if(v !== true){
+            continue;
+        }
+
         if (data[i].time !== 0) {
             val.push({ title: i, time: data[i].time });
         }

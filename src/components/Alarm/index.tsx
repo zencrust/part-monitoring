@@ -38,14 +38,14 @@ function ShouldPlayAlarm(alarms: IValueState[], settings?:ISettings){
         return false; 
     }
 
-    return !alarms.every(x => x.diff < settings.MaxWaitTime);
+    return !alarms.every(x => x.diff < 1);
 }
 
 function calculateState(alarms : IDisplayMessage[]){
     return alarms.map(x =>
         {
             return {
-                message:x, diff: timeDiff(x.time)
+                message:x, diff: x.time
             }
         }
     )
@@ -59,24 +59,6 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[], settings? :
             value:calculateState(props.alarms)
         }
     } 
-
-    tick() {
-        let c = calculateState(this.props.alarms);
-        if(this.state.value.length === 0 &&  c.length === 0) {
-            return;
-        }
-        this.setState({
-            value: c            
-        });
-    }
-
-    componentDidMount() {
-        this.interval = setInterval(() => this.tick(), 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.interval);
-    }
 
     render() {
     if(this.state.value.length === 0){

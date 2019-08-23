@@ -5,7 +5,7 @@ import AlarmList from '../Alarm/index';
 import { Footer, Content, Message, Navbar } from 'rbx';
 import MqttManager, { ServerStatus, IDisplayMessage, ISettings, IStationStatus } from '../../MqttManager';
 import ReportLayout from '../Report';
-import { Route, Switch, BrowserRouter } from 'react-router-dom';
+import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
 import { NotFound } from '../404';
 import StationStatus from '../Status';
 
@@ -43,52 +43,50 @@ export default class MainLayout extends React.Component<any, IState> {
         this.setState({ alarms: val });
         //console.log(val);
       },
-      (val: ISettings) => 
-      {
+      (val: ISettings) => {
         this.setState({ settings: val });
       },
-      (val: IStationStatus[]) =>
-      {
+      (val: IStationStatus[]) => {
         this.setState({ stationStatus: val });
       })
   }
 
   componentWillUnmount() {
-    this.mqtt_sub();
+    // this.mqtt_sub();
   }
 
   render() {
     let MainComponent = () => {
       return (
-        <AlarmList alarms={this.state.alarms} settings={this.state.settings}/>
+        <AlarmList alarms={this.state.alarms} settings={this.state.settings} />
       )
     };
 
     let StatusComponent = () => {
       return (
-        <StationStatus status={this.state.stationStatus}/>
+        <StationStatus status={this.state.stationStatus} />
       )
     }
 
     return (
       <div>
-        <Navbar color="info">
-          <Navbar.Brand>
-            <Navbar.Item href="#">
-              <div className="title-header">
-                Smart Dashboard
-                </div>
-            </Navbar.Item>
-          </Navbar.Brand>
-          <Navbar.Menu>
-            <Navbar.Segment align="start">
-              <Navbar.Item href="/">Home</Navbar.Item>
-              <Navbar.Item href="/report">Report</Navbar.Item>
-              <Navbar.Item href="/status">Status</Navbar.Item>
-            </Navbar.Segment> 
-          </Navbar.Menu>
-        </Navbar>
         <BrowserRouter>
+          <Navbar color="info">
+            <Navbar.Brand>
+              <Navbar.Item href="#">
+                <div className="title-header">
+                  Smart Dashboard
+                </div>
+              </Navbar.Item>
+            </Navbar.Brand>
+            <Navbar.Menu>
+              <Navbar.Segment align="start">
+                <Link className="navbar-item" to={`/`}>Home</Link>
+                <Link className="navbar-item" to={`/report`}>Report</Link>
+                <Link className="navbar-item" to={`/status`}>Status</Link>
+              </Navbar.Segment>
+            </Navbar.Menu>
+          </Navbar>
           <Content className="main-container">
             <Message color={this.state.status.color} className="Alert-banner">
               <Message.Header>

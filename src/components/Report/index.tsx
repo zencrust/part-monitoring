@@ -68,7 +68,7 @@ let ReportLayout: React.FC<Props> = p => {
         );
     }
 
-    if(logs.length === 0){
+    if(logs.length === undefined){
         return(
             <div className="errorText">
                 No logs found

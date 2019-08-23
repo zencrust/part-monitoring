@@ -1,8 +1,8 @@
 {
-    "mqtt_server": "zencrust.cf",
+    "mqtt_server": "smartdashboard.local",
     "port":9001,
     "user_name": "",
     "password": "",
-	"protocol": "wss",
-    "MaxWaitTime": 30
+	"protocol": "ws",
+    "MaxWaitTime": 300
 }
