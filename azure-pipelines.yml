@@ -33,12 +33,3 @@ steps:
     PathtoPublish: $(Build.ArtifactStagingDirectory)
     publishLocation: Container
     TargetPath: .
-
-- task: CopyFilesOverSSH@0
-  inputs:
-    sshEndpoint: 'DO-droplet1'
-    sourceFolder: 'build'
-    contents: '**'
-    targetFolder: 'part-monitor'
-    cleanTargetFolder: true
-    failOnEmptySource: true
