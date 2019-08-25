@@ -6,20 +6,11 @@ export interface ServerStatus {
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export interface IMessage {
-    time: number;
-}
+export type IUpdateType = "IsConnected" | "time" | "lastUpdateTime" | "wifiStrength";
+export type ValueType = boolean | number;
 
-export interface IStationStatus {
-    name: string;
-    lastUpdateTime: number;
-    wifiStrength: number;
-    isConnected: boolean;
-}
-
-export interface IDisplayMessage {
-    time: number;
-    title: string;
+export interface IValueType {
+    (stationName: string, update: IUpdateType, value: ValueType) : void;
 }
 
 export interface ISettings {
@@ -31,7 +22,7 @@ export interface ISettings {
     MaxWaitTime: number;
 }
 
-export default function MqttManager(setServerStatus: (val: ServerStatus) => void, setValues: (val: IDisplayMessage[]) => void, setSettings: (val: ISettings) => void, statusCallback: (val: IStationStatus[]) => void) {
+export default function MqttManager(setServerStatus: (val: ServerStatus) => void, setValues: IValueType, setSettings: (val: ISettings) => void) {
     const settings: Promise<ISettings> = fetch("assets/config/settings.json")
         .then((x) => x.json())
         .catch((x) => console.log(x));
@@ -54,8 +45,6 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         rejectUnauthorized: false,
     };
 
-    const data: { [id: string]: IMessage; } = {};
-    const stationStatus: {[id: string]: IStationStatus; } = {};
     setServerStatus({ message: "Connecting ", color: "info" });
 
     const _registerChanges = (client: mqtt.MqttClient) => {
@@ -66,53 +55,17 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
             const [, deviceId, func, ch] = topic.split("/");
             if (func === "dio" && ch === "Switch Pressed") {
 
-                let utcSeconds = parseInt(msg.toString());
-                utcSeconds = isNaN(utcSeconds) ? 0 : utcSeconds;
-                data[deviceId] = { time: utcSeconds };
-                CalculateAndSetValue(data, stationStatus, setValues);
+                let timeDelay = parseInt(msg.toString());
+                timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
+                setValues(deviceId, 'time', timeDelay);
             } else if (func === "heartbeat") {
-                data[deviceId] = { time: 0 }; // disconnected. error out now
-                const st = stationStatus[deviceId];
-                if (isUndefined(st)) {
-                    stationStatus[deviceId] = {
-                        name: deviceId,
-                        lastUpdateTime: 0,
-                        wifiStrength: 0,
-                        isConnected: false,
-                    };
-                } else {
-                    stationStatus[deviceId].isConnected = false;
-                }
-
-                SendStatus(stationStatus, statusCallback);
+                setValues(deviceId, 'IsConnected', false);
             } else if (func === "telemetry") {
-                const st = stationStatus[deviceId];
-                if (isUndefined(st)) {
-                    if (ch === "last update time") {
-                        stationStatus[deviceId] = {
-                            name: deviceId,
-                            lastUpdateTime: parseInt(msg.toString()),
-                            wifiStrength: 0,
-                            isConnected: true,
-                        };
-                    } else if (ch === "wifi Signal Strength") {
-                        stationStatus[deviceId] = {
-                            name: deviceId,
-                            lastUpdateTime: 0,
-                            wifiStrength: parseInt(msg.toString()),
-                            isConnected: true,
-                        };
-                    }
-
-                } else {
-                    if (ch === "last update time") {
-                        stationStatus[deviceId].lastUpdateTime = parseInt(msg.toString());
-                    } else if (ch === "wifi Signal Strength") {
-                        stationStatus[deviceId].wifiStrength = parseInt(msg.toString());
-                    }
-                }
-
-                SendStatus(stationStatus, statusCallback);
+                if (ch === "last update time") {
+                    setValues(deviceId, 'lastUpdateTime', parseInt(msg.toString()));                    
+                } else if (ch === "wifi Signal Strength") {
+                    setValues(deviceId, 'wifiStrength', parseInt(msg.toString()));    
+                } 
             }
         });
     };
@@ -165,29 +118,4 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         });
 
     return unmount;
-}
-
-function SendStatus(data: {[id: string]: IStationStatus; }, callback: (val: IStationStatus[]) => void) {
-    const val: IStationStatus[] = [];
-    for (const i in data) {
-        val.push(data[i]);
-    }
-
-    callback(val);
-}
-
-function CalculateAndSetValue(data: { [id: string]: IMessage; }, stationStatus: {[id: string]: IStationStatus }, setValues: (val: IDisplayMessage[]) => void) {
-    const val: IDisplayMessage[] = [];
-    for (const i in data) {
-        const v = stationStatus[i].isConnected;
-        if (v !== true) {
-            continue;
-        }
-
-        if (data[i].time !== 0) {
-            val.push({ title: i, time: data[i].time });
-        }
-    }
-    val.sort((a, b) => b.time - a.time);
-    setValues(val);
 }

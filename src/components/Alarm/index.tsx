@@ -1,16 +1,11 @@
 import React from 'react'
 import {List, Card, Content, Progress} from 'rbx';
 import PlaySound from '../PlaySound/index';
-import { IDisplayMessage, ISettings } from '../../MqttManager';
+import {IStationStatus, StationStatusType} from '../MainLayout';
+import { ISettings } from '../../MqttManager';
 import { ToTimeFormat } from '../../Utils/index'
 import "./styles.scss";
 import { isUndefined } from 'util';
-
-
-interface IValueState {
-    message:IDisplayMessage;
-    diff:number;
-}
 
 function calculateColor(time: number, settings?:ISettings){
     if(isUndefined(settings)){
@@ -28,40 +23,22 @@ function calculateColor(time: number, settings?:ISettings){
     return "danger";
 }
 
-function timeDiff(utcSeconds: number){
-    let diff = (Date.now()/1000) - utcSeconds;
-    return diff;
+function RecordToArray(alarms: StationStatusType){
+    let retval: IStationStatus[] = []
+    alarms.forEach((v, k) =>
+    {
+        if(v.isConnected && v.time > 0){
+            retval.push(v);
+        }    
+    });
+
+    retval.sort((a, b) => b.time - a.time);
+    return retval;
 }
 
-function ShouldPlayAlarm(alarms: IValueState[], settings?:ISettings){
-    if(isUndefined(settings)){
-        return false; 
-    }
-
-    return !alarms.every(x => x.diff < 1);
-}
-
-function calculateState(alarms : IDisplayMessage[]){
-    return alarms.map(x =>
-        {
-            return {
-                message:x, diff: x.time
-            }
-        }
-    )
-}
-
-class AlarmList extends React.Component<{alarms : IDisplayMessage[], settings? : ISettings},{value: IValueState[]}> {
-    interval : any;
-    constructor(props : {alarms : IDisplayMessage[]}){
-        super(props);
-        this.state = {
-            value:calculateState(props.alarms)
-        }
-    } 
-
-    render() {
-    if(this.state.value.length === 0){
+function AlarmList(props: {alarms : StationStatusType, settings? : ISettings}) {
+    const val = RecordToArray(props.alarms);
+    if(val.length === 0){
         return(
             <div className="allClear">
                 No stations requested new kits
@@ -70,23 +47,23 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[], settings? :
     }
     return (
         <div>
-            <PlaySound playSound={ShouldPlayAlarm(this.state.value, this.props.settings)}/>
+            <PlaySound playSound={true}/>
             <List>
-                {this.state.value.map(item => 
-                    <List.Item key={item.message.title}>
+                {val.map(item => 
+                    <List.Item key={item.name}>
                         <Card>
                             <Card.Header>
                                 <Card.Header.Title>
                                     <div className="headerTitle" style={{ fontSize:'33px'}}>
-                                        <div className="msgTitle">{item.message.title} has requested for new kits.</div>
+                                        <div className="msgTitle">{item.name} has requested for new kits.</div>
                                         <div className="msgTime">Time Elasped: <time
-                                        dateTime={ToTimeFormat(item.diff)}>{ToTimeFormat(item.diff)}</time></div>
+                                        dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.time)}</time></div>
                                     </div>
                                 </Card.Header.Title>
                             </Card.Header>
                             <Card.Content>
                                 <Content>
-                                    <Progress value={item.diff} min={0} max={isUndefined(this.props.settings)? 30 : this.props.settings.MaxWaitTime} color={calculateColor(item.diff, this.props.settings)}/>
+                                    <Progress value={item.time} min={0} max={isUndefined(props.settings)? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
                                 </Content>
                             </Card.Content>
                         </Card>
@@ -94,7 +71,7 @@ class AlarmList extends React.Component<{alarms : IDisplayMessage[], settings? :
                 )}
             </List>
         </div>
-    )}
+    )
 }
 
 export default AlarmList

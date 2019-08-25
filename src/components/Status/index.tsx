@@ -1,10 +1,15 @@
 import React from 'react';
-import { IStationStatus } from '../../MqttManager';
+import { IStationStatus, StationStatusType } from '../MainLayout';
 import { Card, Content } from 'rbx';
 import "./styles.scss";
 import WifiIndicator, { WiFiSignalIndicator } from '../WifiIndicator';
+import { isUndefined } from 'util';
 
-function getDateTimeString(epochTime:number){
+function getDateTimeString(epochTime:number | undefined){
+    if(isUndefined(epochTime)){
+        return "never";
+    }
+    
     let date = new Date(0);
     date.setUTCSeconds(epochTime);
     return date.toLocaleString();
@@ -35,13 +40,24 @@ function calculateWifiSignal(isAlive: boolean, v: number): WiFiSignalIndicator {
 
 interface Props extends React.ComponentPropsWithoutRef<'div'>
 {
-    status: IStationStatus[];
+    status: StationStatusType;
 }
 
-let StationStatus: React.FC<Props> = p => {
+function RecordToArray(alarms: StationStatusType){
+    let retval: IStationStatus[] = []
+    alarms.forEach( (val, k) =>
+    {
+        retval.push(val);
+    });
+    
+    return retval;
+}
+
+function StationStatus(props: Props) {
+    let val = RecordToArray(props.status);
     return(
     <div className="statushead">
-        {p.status.map(item =>
+        {val.map(item =>
             <Card key={item.name} className="statusCard">
                 <Card.Header>
                     <Card.Header.Title>

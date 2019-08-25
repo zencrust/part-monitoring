@@ -1,7 +1,43 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 
-const PlaySound: FunctionComponent<{ playSound: boolean }> = ({playSound}) => {
-    if (!playSound) {
+interface IProps{
+    playSound: boolean
+}
+
+interface IState{
+
+}
+
+class PlaySound extends React.Component<IProps, IState>{
+    shouldComponentUpdate(nextProps:IProps){
+      return !areEqual(this.props, nextProps);
+    }
+
+    render(){
+      return (
+       <PlaySoundFC playSound={this.props.playSound} />
+      );  
+   }
+
+   componentWillUnmount(){
+       console.log('play sound unmounted');
+   }
+}
+
+
+
+function areEqual(prevProps: IProps, nextProps: IProps) {
+    /*
+    return true if passing nextProps to render would return
+    the same result as passing prevProps to render,
+    otherwise return false
+    */
+   return prevProps.playSound === nextProps.playSound;
+}
+
+const PlaySoundFC = (props: IProps) => {
+    
+    if (!props.playSound) {
         return null;
     }
     return (
