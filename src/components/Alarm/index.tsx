@@ -1,60 +1,59 @@
-import React from 'react'
-import {List, Card, Content, Progress} from 'rbx';
-import PlaySound from '../PlaySound/index';
-import {IStationStatus, StationStatusType} from '../MainLayout';
-import { ISettings } from '../../MqttManager';
-import { ToTimeFormat } from '../../Utils/index'
+import {Card, Content, List, Progress} from "rbx";
+import React from "react";
+import { isUndefined } from "util";
+import { ISettings } from "../../MqttManager";
+import { ToTimeFormat } from "../../Utils/index";
+import {IStationStatus, StationStatusType} from "../MainLayout";
+import PlaySound from "../PlaySound/index";
 import "./styles.scss";
-import { isUndefined } from 'util';
 
-function calculateColor(time: number, settings?:ISettings){
-    if(isUndefined(settings)){
-        return "warning"; 
+function calculateColor(time: number, settings?: ISettings) {
+    if (isUndefined(settings)) {
+        return "warning";
     }
 
-    let t = time / settings.MaxWaitTime;
-    if(t < 0.5){
+    const t = time / settings.MaxWaitTime;
+    if (t < 0.5) {
         return "success";
     }
-    if(t < 1){ 
+    if (t < 1) {
         return "warning";
     }
 
     return "danger";
 }
 
-function RecordToArray(alarms: StationStatusType){
-    let retval: IStationStatus[] = []
-    alarms.forEach((v, k) =>
-    {
-        if(v.isConnected && v.time > 0){
+function RecordToArray(alarms: StationStatusType) {
+    const retval: IStationStatus[] = [];
+    alarms.forEach((v, k) => {
+        if (v.isConnected && v.time > 0) {
             retval.push(v);
-        }    
+        }
     });
 
     retval.sort((a, b) => b.time - a.time);
     return retval;
 }
 
-function AlarmList(props: {alarms : StationStatusType, settings? : ISettings}) {
+function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
     const val = RecordToArray(props.alarms);
-    if(val.length === 0){
+    if (val.length === 0) {
         return(
             <div className="allClear">
                 No stations requested new kits
             </div>
-        )
+        );
     }
     return (
         <div>
             <PlaySound playSound={true}/>
             <List>
-                {val.map(item => 
+                {val.map((item) =>
                     <List.Item key={item.name}>
                         <Card>
                             <Card.Header>
                                 <Card.Header.Title>
-                                    <div className="headerTitle" style={{ fontSize:'33px'}}>
+                                    <div className="headerTitle" style={{ fontSize: "33px"}}>
                                         <div className="msgTitle">{item.name} has requested for new kits.</div>
                                         <div className="msgTime">Time Elasped: <time
                                         dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.time)}</time></div>
@@ -63,15 +62,15 @@ function AlarmList(props: {alarms : StationStatusType, settings? : ISettings}) {
                             </Card.Header>
                             <Card.Content>
                                 <Content>
-                                    <Progress value={item.time} min={0} max={isUndefined(props.settings)? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
+                                    <Progress value={item.time} min={0} max={isUndefined(props.settings) ? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
                                 </Content>
                             </Card.Content>
                         </Card>
-                    </List.Item>
+                    </List.Item>,
                 )}
             </List>
         </div>
-    )
+    );
 }
 
-export default AlarmList
+export default AlarmList;

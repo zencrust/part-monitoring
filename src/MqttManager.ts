@@ -6,34 +6,33 @@ export interface ServerStatus {
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export interface IBooleanValueType{
-    updateType : "IsConnected";
+export interface IBooleanValueType {
+    updateType: "IsConnected";
     value: boolean;
 }
 
 export type NumberUpdateType = "time" | "lastUpdateTime" | "wifiStrength";
-export interface INumericValueType{
-    updateType : NumberUpdateType;
+export interface INumericValueType {
+    updateType: NumberUpdateType;
     value: number;
 }
 
 export type IValueType = IBooleanValueType | INumericValueType;
 export type IValueFuntionType = (stationName: string, value: IValueType)  => void;
 
-function CreateBooleanValueType(value: boolean): IBooleanValueType{
+function CreateBooleanValueType(value: boolean): IBooleanValueType {
     return {
         updateType : "IsConnected",
-        value:value
-    }
+        value,
+    };
 }
 
-function CreateNumericValueType(updateType : NumberUpdateType, value: number): INumericValueType{
+function CreateNumericValueType(updateType: NumberUpdateType, value: number): INumericValueType {
     return {
-        updateType : updateType,
-        value:value
-    }
+        updateType,
+        value,
+    };
 }
-
 
 export interface ISettings {
     mqtt_server: string;

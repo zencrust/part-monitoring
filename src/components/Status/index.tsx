@@ -1,19 +1,19 @@
-import React from 'react';
-import { IStationStatus, StationStatusType } from '../MainLayout';
-import { Card, Content } from 'rbx';
+import { Card, Content } from "rbx";
+import React from "react";
+import { isUndefined } from "util";
+import { IStationStatus, StationStatusType } from "../MainLayout";
+import WifiIndicator, { WiFiSignalIndicator } from "../WifiIndicator";
 import "./styles.scss";
-import WifiIndicator, { WiFiSignalIndicator } from '../WifiIndicator';
-import { isUndefined } from 'util';
 
-function getDateTimeString(epochTime:number | undefined){
-    if(isUndefined(epochTime)){
+function getDateTimeString(epochTime: number | undefined) {
+    if (isUndefined(epochTime)) {
         return "never";
     }
-    
-    let date = new Date(0);
+
+    const date = new Date(0);
     date.setUTCSeconds(epochTime);
     return date.toLocaleString();
-} 
+}
 
 function calculateWifiSignal(isAlive: boolean, v: number): WiFiSignalIndicator {
     if (!isAlive) {
@@ -38,31 +38,29 @@ function calculateWifiSignal(isAlive: boolean, v: number): WiFiSignalIndicator {
     return "UNUSABLE";
 }
 
-interface Props extends React.ComponentPropsWithoutRef<'div'>
-{
+interface Props extends React.ComponentPropsWithoutRef<"div"> {
     status: StationStatusType;
 }
 
-function RecordToArray(alarms: StationStatusType){
-    let retval: IStationStatus[] = []
-    alarms.forEach( (val, k) =>
-    {
+function RecordToArray(alarms: StationStatusType) {
+    const retval: IStationStatus[] = [];
+    alarms.forEach( (val, k) => {
         retval.push(val);
     });
-    
+
     return retval;
 }
 
 function StationStatus(props: Props) {
-    let val = RecordToArray(props.status);
+    const val = RecordToArray(props.status);
     return(
     <div className="statushead">
-        {val.map(item =>
+        {val.map((item) =>
             <Card key={item.name} className="statusCard">
                 <Card.Header>
                     <Card.Header.Title>
                         <div className="headerTitle">
-                            <p className="statusTitle">{item.name}</p> 
+                            <p className="statusTitle">{item.name}</p>
                             <WifiIndicator className="statusConected" strength={calculateWifiSignal(item.isConnected, item.wifiStrength)} />
                         </div>
                     </Card.Header.Title>
@@ -74,7 +72,7 @@ function StationStatus(props: Props) {
                         </div>
                     </Content>
                 </Card.Content>
-            </Card>
+            </Card>,
         )}
     </div>
     );

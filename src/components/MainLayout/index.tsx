@@ -1,16 +1,15 @@
-import React from 'react';
-import './styles.scss';
-import update from 'immutability-helper'; // ES6
+import update from "immutability-helper"; // ES6
+import React from "react";
+import "./styles.scss";
 
-import AlarmList from '../Alarm/index';
-import { Footer, Content, Message, Navbar } from 'rbx';
-import MqttManager, { ServerStatus, ISettings, IValueType } from '../../MqttManager';
-import ReportLayout from '../Report';
-import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
-import { NotFound } from '../404';
-import StationStatus from '../Status';
-import { isBoolean,isNumber, isUndefined } from 'util';
-
+import { Content, Footer, Message, Navbar } from "rbx";
+import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
+import { isBoolean, isNumber, isUndefined } from "util";
+import MqttManager, { ISettings, IValueType, ServerStatus } from "../../MqttManager";
+import { NotFound } from "../404";
+import AlarmList from "../Alarm/index";
+import ReportLayout from "../Report";
+import StationStatus from "../Status";
 
 export type StationStatusType = Map<string, IStationStatus>;
 
@@ -30,22 +29,22 @@ export interface IStationStatus {
   isConnected: boolean;
 }
 
-function CreateDefaultStationStatus(stationName: string, value: IValueType): IStationStatus{
-  let v: IStationStatus =  {
+function CreateDefaultStationStatus(stationName: string, value: IValueType): IStationStatus {
+  const v: IStationStatus =  {
     time: 0,
     name: stationName,
     lastUpdateTime: undefined,
-    wifiStrength:0,
+    wifiStrength: 0,
     isConnected: true,
   };
 
-  if(value.updateType === "IsConnected"){
+  if (value.updateType === "IsConnected") {
       v.isConnected = value.value;
-  } else if(value.updateType === "lastUpdateTime"){
+  } else if (value.updateType === "lastUpdateTime") {
       v.lastUpdateTime = value.value;
-  } else if(value.updateType === "wifiStrength"){
+  } else if (value.updateType === "wifiStrength") {
       v.wifiStrength = value.value;
-  } else if(value.updateType === "time"){
+  } else if (value.updateType === "time") {
       v.time = value.value;
       v.isConnected = true;
   }
@@ -54,7 +53,7 @@ function CreateDefaultStationStatus(stationName: string, value: IValueType): ISt
 }
 
 export default class MainLayout extends React.Component<any, IState> {
-  mqtt_sub: any;
+  public mqtt_sub: any;
   /**
    *
    */
@@ -69,52 +68,51 @@ export default class MainLayout extends React.Component<any, IState> {
     };
   }
 
-  componentDidMount() {
+  public componentDidMount() {
     this.mqtt_sub = MqttManager((val: ServerStatus) => {
       this.setState({ status: val });
     },
       (stationName: string, value: IValueType) => {
         let v = this.state.stationStatus.get(stationName);
 
-        if(v === undefined){
+        if (v === undefined) {
           v = CreateDefaultStationStatus(stationName, value);
           this.setState({
-            stationStatus: update(this.state.stationStatus, { [stationName] : { $set: v }})
+            stationStatus: update(this.state.stationStatus, { [stationName] : { $set: v }}),
           });
         }
 
-        if(value.updateType === "IsConnected"){
+        if (value.updateType === "IsConnected") {
             this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{isConnected: value.value}})
+              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
+                update(v, {$merge: {isConnected: value.value}}),
             }})});
-        } 
-        else if(value.updateType === "lastUpdateTime"){
+        } else if (value.updateType === "lastUpdateTime") {
             this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{lastUpdateTime: value.value}})
-            }})});          
-        } else if(value.updateType === "wifiStrength"){
-            this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{wifiStrength: value.value}})
+              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
+                update(v, {$merge: {lastUpdateTime: value.value}}),
             }})});
-        } else if(value.updateType === "time"){
+        } else if (value.updateType === "wifiStrength") {
             this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{time: value.value, isConnected: true}})
+              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
+                update(v, {$merge: {wifiStrength: value.value}}),
+            }})});
+        } else if (value.updateType === "time") {
+            this.setState({
+              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
+                update(v, {$merge: {time: value.value, isConnected: true}}),
             }})});
         }
 
         // this.setState({ alarms: val });
-        //console.log(val);
+        // console.log(val);
       },
       (val: ISettings) => {
         this.setState({ settings: val });
       });
   }
 
-  render() {
+  public render() {
     return (
       <div>
         <BrowserRouter>
@@ -141,13 +139,13 @@ export default class MainLayout extends React.Component<any, IState> {
               </Message.Header>
             </Message>
             <Switch>
-              <Route exact path="/" render={ props => <AlarmList alarms={this.state.stationStatus} settings={this.state.settings} />} />
+              <Route exact path="/" render={ (props) => <AlarmList alarms={this.state.stationStatus} settings={this.state.settings} />} />
               <Route path="/report" component={ReportLayout} />
-              <Route path="/status" render={ props => <StationStatus status={this.state.stationStatus} /> } />
+              <Route path="/status" render={ (props) => <StationStatus status={this.state.stationStatus} /> } />
               <Route component={NotFound} />
             </Switch>
           </Content>
-          <Footer style={{ textAlign: 'center' }}>Smart Dashboard 2019</Footer>
+          <Footer style={{ textAlign: "center" }}>Smart Dashboard 2019</Footer>
         </BrowserRouter>
       </div>
     );

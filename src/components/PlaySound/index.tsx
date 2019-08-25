@@ -1,10 +1,10 @@
 import React from "react";
 
-interface IProps{
-    playSound: boolean
+interface IProps {
+    playSound: boolean;
 }
 
-interface IState{
+interface IState {
 
 }
 
@@ -18,7 +18,7 @@ function areEqual(prevProps: IProps, nextProps: IProps) {
 }
 
 const PlaySound = React.memo((props: IProps) => {
-    
+
     if (!props.playSound) {
         return null;
     }
