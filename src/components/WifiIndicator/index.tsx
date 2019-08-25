@@ -8,18 +8,18 @@ import WEAK from "./images/WEAK.svg";
 
 export type WiFiSignalIndicator = "EXCELLENT" | "GREAT" | "OKAY" | "WEAK" | "UNUSABLE" | "DISCONNECTED";
 
-interface Props extends React.ComponentPropsWithoutRef<"img"> {
+interface IProps extends React.ComponentPropsWithoutRef<"img"> {
     strength: WiFiSignalIndicator;
 }
 
-const WifiIndicator: React.FC<Props> = (p) => {
+const WifiIndicator: React.FC<IProps> = (p) => {
     const imageMap: Record<string, string> =   {
-            EXCELLENT: EXCELLENT,
-            GREAT: GREAT,
-            OKAY: OKAY,
-            WEAK: WEAK,
-            UNUSABLE: UNUSABLE,
-            DISCONNECTED: DISCONNECTED,
+            EXCELLENT,
+            GREAT,
+            OKAY,
+            WEAK,
+            UNUSABLE,
+            DISCONNECTED,
         };
     return (
         <img src={imageMap[p.strength]} style={{height: "2em"}} alt={p.strength} className={p.className}>

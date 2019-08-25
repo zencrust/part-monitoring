@@ -1,28 +1,28 @@
 import mqtt, { IClientOptions } from "mqtt";
-import { isUndefined } from "util";
+import axios from 'axios';
 
 export interface ServerStatus {
     message: string;
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export interface IBooleanValueType {
-    updateType: "IsConnected";
-    value: boolean;
+export interface IBaseValueType<T1, T2> {
+    updateType: T1;
+    value: T2;
 }
 
+export type IBooleanValueType = IBaseValueType<"IsConnected", boolean>;
 export type NumberUpdateType = "time" | "lastUpdateTime" | "wifiStrength";
-export interface INumericValueType {
-    updateType: NumberUpdateType;
-    value: number;
-}
+export type INumericValueType = IBaseValueType<NumberUpdateType, number>;
+export type ISetServerStatusType = IBaseValueType<"setServerStatus", ServerStatus>;
+export type ISetSettingsType = IBaseValueType<"Settings", ISettings>;
 
 export type IValueType = IBooleanValueType | INumericValueType;
-export type IValueFuntionType = (stationName: string, value: IValueType)  => void;
+export type IValueFuntionType = (stationName: string, value: IValueType) => void;
 
 function CreateBooleanValueType(value: boolean): IBooleanValueType {
     return {
-        updateType : "IsConnected",
+        updateType: "IsConnected",
         value,
     };
 }
@@ -37,17 +37,24 @@ function CreateNumericValueType(updateType: NumberUpdateType, value: number): IN
 export interface ISettings {
     mqtt_server: string;
     user_name?: string;
-	protocol: "wss" | "ws" | "mqtt" | "mqtts" | "tcp" | "ssl" | "wx" | "wxs";
+    protocol: "wss" | "ws" | "mqtt" | "mqtts" | "tcp" | "ssl" | "wx" | "wxs";
     password?: string;
     port: number;
     MaxWaitTime: number;
 }
 
+export interface IMqttConstructed {
+    disconnect: VoidFunction;
+    settings: ISettings;
+}
+
+function CreateMqttValue(disconnect: VoidFunction, settings: ISettings): IMqttConstructed {
+    return { disconnect, settings };
+}
+
 export default function MqttManager(setServerStatus: (val: ServerStatus) => void,
-                                    setValues: IValueFuntionType, setSettings: (val: ISettings) => void) {
-    const settings: Promise<ISettings> = fetch("assets/config/settings.json")
-        .then((x) => x.json())
-        .catch((x) => console.log(x));
+    setValues: IValueFuntionType) {
+
     const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
 
     const options: IClientOptions = {
@@ -109,35 +116,37 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         });
     };
 
-    let unmount: any = null;
-    settings.then((val) => {
-        // console.log(val.mqtt_server, options);
-        setSettings(val);
-        options.username = val.user_name;
-        options.password = val.password;
-        options.protocol = val.protocol;
-        options.clean = true;
-        options.servers = [{
-            host: val.mqtt_server,
-            port: val.port,
-            protocol: val.protocol,
-        }];
-        // console.log(val);
-        const client = mqtt.connect(options);
-        client.subscribe("partalarm/#", { qos: 2 });
-        console.log("connection sub", val.mqtt_server);
-        setServerStatus({ message: "Connecting ", color: "warning" });
-        _registerErrors(client);
-        _registerChanges(client);
+    let returnPromise = new Promise<IMqttConstructed>((resolve, reject) => {
+        axios.get<ISettings>("assets/config/settings.json")
+            .then((v) => {
+                const val = v.data;
+                // console.log(val.mqtt_server, options);
+                options.username = val.user_name;
+                options.password = val.password;
+                options.protocol = val.protocol;
+                options.clean = true;
+                options.servers = [{
+                    host: val.mqtt_server,
+                    port: val.port,
+                    protocol: val.protocol,
+                }];
+                // console.log(val);
+                const client = mqtt.connect(options);
+                client.subscribe("partalarm/#", { qos: 2 });
+                console.log("connection sub", val.mqtt_server);
+                setServerStatus({ message: "Connecting ", color: "warning" });
+                _registerErrors(client);
+                _registerChanges(client);
+                resolve(CreateMqttValue(() => {
+                    console.log("disconnecting");
+                    client.end(true);
+                }, val));
+            })
+            .catch((e) => {
+                reject(e);
+                console.log("error reading status file", e);
+            });
+    });
 
-        unmount = () => {
-            console.log("disconnecting");
-            client.end(true);
-        };
-    })
-        .catch((e) => {
-            console.log("error reading status file", e);
-        });
-
-    return unmount;
+    return returnPromise;
 }
