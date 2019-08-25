@@ -8,24 +8,6 @@ interface IState{
 
 }
 
-class PlaySound extends React.Component<IProps, IState>{
-    shouldComponentUpdate(nextProps:IProps){
-      return !areEqual(this.props, nextProps);
-    }
-
-    render(){
-      return (
-       <PlaySoundFC playSound={this.props.playSound} />
-      );  
-   }
-
-   componentWillUnmount(){
-       console.log('play sound unmounted');
-   }
-}
-
-
-
 function areEqual(prevProps: IProps, nextProps: IProps) {
     /*
     return true if passing nextProps to render would return
@@ -35,7 +17,7 @@ function areEqual(prevProps: IProps, nextProps: IProps) {
    return prevProps.playSound === nextProps.playSound;
 }
 
-const PlaySoundFC = (props: IProps) => {
+const PlaySound = React.memo((props: IProps) => {
     
     if (!props.playSound) {
         return null;
@@ -45,6 +27,6 @@ const PlaySoundFC = (props: IProps) => {
             <audio src="assets/sound/alert.wav" autoPlay={true} loop={true}/>
         </div>
     );
-};
+}, areEqual);
 
 export default PlaySound;

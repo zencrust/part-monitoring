@@ -10,7 +10,6 @@ import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
 import { NotFound } from '../404';
 import StationStatus from '../Status';
 import { isBoolean,isNumber, isUndefined } from 'util';
-import PlaySound from '../PlaySound/index';
 
 
 export type StationStatusType = Map<string, IStationStatus>;
@@ -60,22 +59,6 @@ function CreateDefaultStationStatus(stationName: string, updateType: IUpdateType
   }
 
   return v;
-}
-
-function ShouldPlayAlarm(alarms: StationStatusType, settings?:ISettings){
-  if(isUndefined(settings)){
-      return false; 
-  }
-
-  let retval = false;
-  alarms.forEach((v, k) => {
-    if(v.isConnected && v.time > 0){
-      retval = true;
-      return true;
-    }
-  })
-
-  return retval;
 }
 
 export default class MainLayout extends React.Component<any, IState> {
@@ -145,10 +128,6 @@ export default class MainLayout extends React.Component<any, IState> {
       (val: ISettings) => {
         this.setState({ settings: val });
       });
-  }
-
-  componentWillUnmount() {
-    // this.mqtt_sub();
   }
 
   render() {

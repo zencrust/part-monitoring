@@ -32,11 +32,15 @@ let ReportLayout: React.FC<Props> = p => {
         useEffect(() =>
         {
             let uri = '/api/v1/getreport';
+            const CancelToken = axios.CancelToken;
+            const source = CancelToken.source();
+
             let req: AxiosRequestConfig = {
                 params: {
                     limit: limit,
                     offset: offset
-                }
+                },
+                cancelToken: source.token
             };
             axios.get<ILog[]>(uri, req)
             .then(logs => {
@@ -48,8 +52,14 @@ let ReportLayout: React.FC<Props> = p => {
                 }
             })
             .catch(err => {
-                setError(true);
+                if(err.message !== "component unmounted"){
+                    setError(true);
+                } 
             });
+            return () => {
+                // clean up
+                source.cancel('component unmounted');
+              };
         }, [limit, offset]);
     
     if(error){
