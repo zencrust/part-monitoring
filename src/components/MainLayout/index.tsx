@@ -4,7 +4,7 @@ import update from 'immutability-helper'; // ES6
 
 import AlarmList from '../Alarm/index';
 import { Footer, Content, Message, Navbar } from 'rbx';
-import MqttManager, { ServerStatus, ISettings, IUpdateType, ValueType } from '../../MqttManager';
+import MqttManager, { ServerStatus, ISettings, IValueType } from '../../MqttManager';
 import ReportLayout from '../Report';
 import { Route, Switch, BrowserRouter, Link } from 'react-router-dom';
 import { NotFound } from '../404';
@@ -30,7 +30,7 @@ export interface IStationStatus {
   isConnected: boolean;
 }
 
-function CreateDefaultStationStatus(stationName: string, updateType: IUpdateType, value: ValueType): IStationStatus{
+function CreateDefaultStationStatus(stationName: string, value: IValueType): IStationStatus{
   let v: IStationStatus =  {
     time: 0,
     name: stationName,
@@ -39,23 +39,15 @@ function CreateDefaultStationStatus(stationName: string, updateType: IUpdateType
     isConnected: true,
   };
 
-  if(updateType === "IsConnected"){
-    if(isBoolean(value)){
-      v.isConnected = value;
-    }
-  } else if(updateType === "lastUpdateTime"){
-    if(isNumber(value)){
-      v.lastUpdateTime = value;
-    }
-  } else if(updateType === "wifiStrength"){
-    if(isNumber(value)){
-      v.wifiStrength = value;
-    }
-  } else if(updateType === "time"){
-    if(isNumber(value)){
-      v.time = value;
+  if(value.updateType === "IsConnected"){
+      v.isConnected = value.value;
+  } else if(value.updateType === "lastUpdateTime"){
+      v.lastUpdateTime = value.value;
+  } else if(value.updateType === "wifiStrength"){
+      v.wifiStrength = value.value;
+  } else if(value.updateType === "time"){
+      v.time = value.value;
       v.isConnected = true;
-    }
   }
 
   return v;
@@ -81,45 +73,37 @@ export default class MainLayout extends React.Component<any, IState> {
     this.mqtt_sub = MqttManager((val: ServerStatus) => {
       this.setState({ status: val });
     },
-      (stationName: string, updateType: IUpdateType, value: ValueType) => {
+      (stationName: string, value: IValueType) => {
         let v = this.state.stationStatus.get(stationName);
 
         if(v === undefined){
-          v = CreateDefaultStationStatus(stationName, updateType, value);
+          v = CreateDefaultStationStatus(stationName, value);
           this.setState({
             stationStatus: update(this.state.stationStatus, { [stationName] : { $set: v }})
           });
         }
 
-        if(updateType === "IsConnected"){
-          if(isBoolean(value)){
+        if(value.updateType === "IsConnected"){
             this.setState({
               stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{isConnected: value}})
+                update(v, {$merge:{isConnected: value.value}})
             }})});
-          } 
         } 
-        else if(updateType === "lastUpdateTime"){
-          if(isNumber(value)){
+        else if(value.updateType === "lastUpdateTime"){
             this.setState({
               stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{lastUpdateTime: value}})
+                update(v, {$merge:{lastUpdateTime: value.value}})
             }})});          
-          }
-        } else if(updateType === "wifiStrength"){
-          if(isNumber(value)){
+        } else if(value.updateType === "wifiStrength"){
             this.setState({
               stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{wifiStrength: value}})
+                update(v, {$merge:{wifiStrength: value.value}})
             }})});
-          }
-        } else if(updateType === "time"){
-          if(isNumber(value)){
+        } else if(value.updateType === "time"){
             this.setState({
               stationStatus: update(this.state.stationStatus, { [stationName] : { $set: 
-                update(v, {$merge:{time: value, isConnected: true}})
+                update(v, {$merge:{time: value.value, isConnected: true}})
             }})});
-          }
         }
 
         // this.setState({ alarms: val });

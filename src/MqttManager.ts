@@ -6,12 +6,34 @@ export interface ServerStatus {
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export type IUpdateType = "IsConnected" | "time" | "lastUpdateTime" | "wifiStrength";
-export type ValueType = boolean | number;
-
-export interface IValueType {
-    (stationName: string, update: IUpdateType, value: ValueType) : void;
+export interface IBooleanValueType{
+    updateType : "IsConnected";
+    value: boolean;
 }
+
+export type NumberUpdateType = "time" | "lastUpdateTime" | "wifiStrength";
+export interface INumericValueType{
+    updateType : NumberUpdateType;
+    value: number;
+}
+
+export type IValueType = IBooleanValueType | INumericValueType;
+export type IValueFuntionType = (stationName: string, value: IValueType)  => void;
+
+function CreateBooleanValueType(value: boolean): IBooleanValueType{
+    return {
+        updateType : "IsConnected",
+        value:value
+    }
+}
+
+function CreateNumericValueType(updateType : NumberUpdateType, value: number): INumericValueType{
+    return {
+        updateType : updateType,
+        value:value
+    }
+}
+
 
 export interface ISettings {
     mqtt_server: string;
@@ -22,7 +44,8 @@ export interface ISettings {
     MaxWaitTime: number;
 }
 
-export default function MqttManager(setServerStatus: (val: ServerStatus) => void, setValues: IValueType, setSettings: (val: ISettings) => void) {
+export default function MqttManager(setServerStatus: (val: ServerStatus) => void,
+                                    setValues: IValueFuntionType, setSettings: (val: ISettings) => void) {
     const settings: Promise<ISettings> = fetch("assets/config/settings.json")
         .then((x) => x.json())
         .catch((x) => console.log(x));
@@ -57,15 +80,15 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
 
                 let timeDelay = parseInt(msg.toString());
                 timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
-                setValues(deviceId, 'time', timeDelay);
+                setValues(deviceId, CreateNumericValueType("time", timeDelay));
             } else if (func === "heartbeat") {
-                setValues(deviceId, 'IsConnected', false);
+                setValues(deviceId, CreateBooleanValueType(false));
             } else if (func === "telemetry") {
                 if (ch === "last update time") {
-                    setValues(deviceId, 'lastUpdateTime', parseInt(msg.toString()));                    
+                    setValues(deviceId, CreateNumericValueType("lastUpdateTime", parseInt(msg.toString())));
                 } else if (ch === "wifi Signal Strength") {
-                    setValues(deviceId, 'wifiStrength', parseInt(msg.toString()));    
-                } 
+                    setValues(deviceId, CreateNumericValueType("wifiStrength", parseInt(msg.toString())));
+                }
             }
         });
     };
