@@ -1,5 +1,5 @@
+import axios from "axios";
 import mqtt, { IClientOptions } from "mqtt";
-import axios from 'axios';
 
 export interface ServerStatus {
     message: string;
@@ -53,7 +53,7 @@ function CreateMqttValue(disconnect: VoidFunction, settings: ISettings): IMqttCo
 }
 
 export default function MqttManager(setServerStatus: (val: ServerStatus) => void,
-    setValues: IValueFuntionType) {
+                                    setValues: IValueFuntionType) {
 
     const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
 
@@ -116,7 +116,7 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         });
     };
 
-    let returnPromise = new Promise<IMqttConstructed>((resolve, reject) => {
+    const returnPromise = new Promise<IMqttConstructed>((resolve, reject) => {
         axios.get<ISettings>("assets/config/settings.json")
             .then((v) => {
                 const val = v.data;

@@ -53,7 +53,7 @@ function CreateDefaultStationStatus(stationName: string, value: IValueType): ISt
 }
 
 export default class MainLayout extends React.Component<any, IState> {
-  disconnect : VoidFunction | undefined;
+  public disconnect: VoidFunction | undefined;
   /**
    *
    */
@@ -108,14 +108,14 @@ export default class MainLayout extends React.Component<any, IState> {
         // console.log(val);
       });
 
-      mqtt_sub.then(x => {
+    mqtt_sub.then((x) => {
         this.setState({ settings: x.settings });
         this.disconnect = x.disconnect;
       });
   }
-  
-  componentWillUnmoune(){
-    if(!isUndefined(this.disconnect)){
+
+  public componentWillUnmount() {
+    if (!isUndefined(this.disconnect)) {
       this.disconnect();
     }
   }
