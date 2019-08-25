@@ -1,4 +1,4 @@
-from arm32v7/node:8-buster as builder
+from arm32v7/node:8-buster as multistage
 COPY . .
 RUN yarn install && yarn build
 
