@@ -1,4 +1,4 @@
-import {Card, Content, List, Progress} from "rbx";
+import {Card, Content, List, Progress, Tile, Title, Notification} from "rbx";
 import React from "react";
 import { isUndefined } from "util";
 import { ISettings } from "../../MqttManager";
@@ -23,11 +23,16 @@ function calculateColor(time: number, settings?: ISettings) {
     return "danger";
 }
 
-function RecordToArray(alarms: StationStatusType) {
-    const retval: IStationStatus[] = [];
+export interface ICurrentStatus {
+    time: number;
+    name: string;
+}
+
+function RecordToArray(alarms: StationStatusType, getTime: (val :IStationStatus) => number) {
+    const retval: ICurrentStatus[] = [];
     alarms.forEach((v, k) => {
-        if (v.isConnected && v.time > 0) {
-            retval.push(v);
+        if (v.isConnected && getTime(v) > 0) {
+            retval.push({time:getTime(v), name:v.name});
         }
     });
 
@@ -35,41 +40,65 @@ function RecordToArray(alarms: StationStatusType) {
     return retval;
 }
 
-function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
-    const val = RecordToArray(props.alarms);
-    if (val.length === 0) {
+function AlarmListCard(props: {val: ICurrentStatus[], settings?: ISettings, message:string}){
+    if(props.val.length === 0){
         return(
             <div className="allClear">
-                No stations requested new kits
+                No stations {props.message}
             </div>
         );
     }
+    return(
+        <List>
+            {props.val.map((item) =>
+                <List.Item key={item.name}>
+                    <Card>
+                        <Card.Header>
+                            <Card.Header.Title>
+                                <div className="headerTitle" style={{ fontSize: "33px"}}>
+                                    <div className="msgTitle">{item.name}</div>
+                                    <div className="msgTime">Time Elasped: <time
+                                    dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.time)}</time></div>
+                                </div>
+                            </Card.Header.Title>
+                        </Card.Header>
+                        <Card.Content>
+                            <Content>
+                                <Progress value={item.time} min={0} max={isUndefined(props.settings) ? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
+                            </Content>
+                        </Card.Content>
+                    </Card>
+                </List.Item>,
+            )}
+        </List>
+    )
+}
+
+function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
+    const val = RecordToArray(props.alarms, (v:IStationStatus) => v.time);
+    const val2 = RecordToArray(props.alarms, (v:IStationStatus) => v.time2);
     return (
-        <div>
-            <PlaySound playSound={true}/>
-            <List>
-                {val.map((item) =>
-                    <List.Item key={item.name}>
-                        <Card>
-                            <Card.Header>
-                                <Card.Header.Title>
-                                    <div className="headerTitle" style={{ fontSize: "33px"}}>
-                                        <div className="msgTitle">{item.name} has requested for new kits.</div>
-                                        <div className="msgTime">Time Elasped: <time
-                                        dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.time)}</time></div>
-                                    </div>
-                                </Card.Header.Title>
-                            </Card.Header>
-                            <Card.Content>
-                                <Content>
-                                    <Progress value={item.time} min={0} max={isUndefined(props.settings) ? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
-                                </Content>
-                            </Card.Content>
-                        </Card>
-                    </List.Item>,
-                )}
-            </List>
-        </div>
+        <>
+            <PlaySound playSound={val.length > 0 || val2.length > 0}/>
+            <div className="AlarmCardsColumn">
+                <div>
+                    <Notification color="warning" textAlign="centered">
+                        <h4 className="AlertsectionHeader">New kit request</h4>
+                    </Notification>
+                    <Content>
+                        <AlarmListCard val={val} settings={props.settings} message=" has requested for new kits"/>
+                    </Content>
+                </div>
+                <div>
+                    <Notification color="primary" textAlign="centered">
+                        <h4 className="AlertsectionHeader">Assistance request</h4>
+                    </Notification>
+                    <Content>
+                        <AlarmListCard val={val2} settings={props.settings} message=" has requested assistance" />
+                    </Content>
+                </div>
+            </div>
+        </>
     );
 }
 

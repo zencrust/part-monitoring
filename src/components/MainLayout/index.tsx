@@ -4,7 +4,7 @@ import "./styles.scss";
 
 import { Content, Footer, Message, Navbar } from "rbx";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import { isBoolean, isNumber, isUndefined } from "util";
+import { isUndefined } from "util";
 import MqttManager, { ISettings, IValueType, ServerStatus } from "../../MqttManager";
 import { NotFound } from "../404";
 import AlarmList from "../Alarm/index";
@@ -27,6 +27,7 @@ export interface IStationStatus {
   lastUpdateTime?: number;
   wifiStrength: number;
   isConnected: boolean;
+  time2: number;
 }
 
 function CreateDefaultStationStatus(stationName: string, value: IValueType): IStationStatus {
@@ -36,6 +37,7 @@ function CreateDefaultStationStatus(stationName: string, value: IValueType): ISt
     lastUpdateTime: undefined,
     wifiStrength: 0,
     isConnected: true,
+    time2: 0
   };
 
   if (value.updateType === "IsConnected") {
@@ -103,6 +105,12 @@ export default class MainLayout extends React.Component<any, IState> {
                 update(v, {$merge: {time: value.value, isConnected: true}}),
             }})});
         }
+        else if (value.updateType === "time2") {
+          this.setState({
+            stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
+              update(v, {$merge: {time2: value.value, isConnected: true}}),
+          }})});
+      }
 
         // this.setState({ alarms: val });
         // console.log(val);
@@ -125,13 +133,6 @@ export default class MainLayout extends React.Component<any, IState> {
       <div>
         <BrowserRouter>
           <Navbar color="info">
-            <Navbar.Brand>
-              <Navbar.Item href="#">
-                <div className="title-header">
-                  Smart Dashboard
-                </div>
-              </Navbar.Item>
-            </Navbar.Brand>
             <Navbar.Menu>
               <Navbar.Segment align="start">
                 <Link className="navbar-item" to={`/`}>Home</Link>
@@ -139,13 +140,18 @@ export default class MainLayout extends React.Component<any, IState> {
                 <Link className="navbar-item" to={`/status`}>Status</Link>
               </Navbar.Segment>
             </Navbar.Menu>
-          </Navbar>
-          <Content className="main-container">
+            <h2 className="title-header">
+                  Smart Dashboard
+            </h2>
             <Message color={this.state.status.color} className="Alert-banner">
-              <Message.Header>
-                {this.state.status.message}
-              </Message.Header>
+                  <Message.Header>
+                    {this.state.status.message}
+                  </Message.Header>
             </Message>
+          </Navbar>
+
+          <Content className="main-container">
+
             <Switch>
               <Route exact path="/" render={ (props) => <AlarmList alarms={this.state.stationStatus} settings={this.state.settings} />} />
               <Route path="/report" component={ReportLayout} />

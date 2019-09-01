@@ -22,3 +22,30 @@
     color: rgba(5, 131, 5, 0.63);
     font-size: 25px;
 }
+
+.AlarmleftDiv{
+    float: left;
+    width: 49%;
+    align-content: stretch;
+    margin-left: 10px;
+}
+
+.AlarmrightDiv {
+    float: right;
+    width: 49%;
+    margin-right: 10px;
+}
+
+.AlarmCardsColumn {
+    display: flex;
+    flex-wrap: wrap;   
+}
+
+.AlarmCardsColumn > div {
+    flex: 1;
+    margin: 10px;
+}
+
+.AlertsectionHeader{
+    margin-bottom: 0px !important;
+}

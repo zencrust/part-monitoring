@@ -2,9 +2,12 @@
   text-align: center;
 }
 
-title-header {
-  text-align: left;
-  font-size: 30px;
+.title-header {
+  text-align: center;
+  align-self: center;
+  font-size: 25px;
+  width: 100%;
+  z-index: 1;
   text-transform: uppercase;
   text-overflow: ellipsis;
 }
@@ -17,16 +20,22 @@ title-header {
 
 
 .Alert-banner{
-  text-align: left;
   font-size: 15;
-  text-overflow: ellipsis;
+  min-width: 13em;
   text-justify: inter-word; 
   text-justify: capitalize;
-  margin: 5px 5px
+  margin: 5px 5px;
+}
+
+.Alert-banner > div {
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .Content-div {
-  padding: 24;
+  padding: 0;
   background: #fff;
   min-height: 360;
   margin: 16px;
@@ -47,7 +56,7 @@ title-header {
 }
 
 body {
-  height: 100%;
+  height: 95%;
   position: relative;
  }
 
@@ -62,7 +71,7 @@ body {
 
 footer {
   position: absolute;
-  height: 10px;
+  height: 5%;
   bottom: 0;
   width: 100%;
  }

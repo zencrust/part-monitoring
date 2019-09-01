@@ -12,7 +12,7 @@ export interface IBaseValueType<T1, T2> {
 }
 
 export type IBooleanValueType = IBaseValueType<"IsConnected", boolean>;
-export type NumberUpdateType = "time" | "lastUpdateTime" | "wifiStrength";
+export type NumberUpdateType = "time" | "time2" | "lastUpdateTime" | "wifiStrength";
 export type INumericValueType = IBaseValueType<NumberUpdateType, number>;
 export type ISetServerStatusType = IBaseValueType<"setServerStatus", ServerStatus>;
 export type ISetSettingsType = IBaseValueType<"Settings", ISettings>;
@@ -87,6 +87,11 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
                 let timeDelay = parseInt(msg.toString());
                 timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
                 setValues(deviceId, CreateNumericValueType("time", timeDelay));
+            } else if (func === "dio" && ch === "Switch2 Pressed") {
+
+                let timeDelay = parseInt(msg.toString());
+                timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
+                setValues(deviceId, CreateNumericValueType("time2", timeDelay));
             } else if (func === "heartbeat") {
                 setValues(deviceId, CreateBooleanValueType(false));
             } else if (func === "telemetry") {
