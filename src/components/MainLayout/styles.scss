@@ -6,9 +6,9 @@
   text-align: center;
   align-self: center;
   font-size: 25px;
-  width: 100%;
-  z-index: 1;
-  text-transform: uppercase;
+  margin-left: 1em;
+  margin-right: 1em;
+  text-transform: capitalize;
   text-overflow: ellipsis;
 }
 
@@ -21,7 +21,6 @@
 
 .Alert-banner{
   font-size: 15;
-  min-width: 13em;
   text-justify: inter-word; 
   text-justify: capitalize;
   margin: 5px 5px;
@@ -41,37 +40,21 @@
   margin: 16px;
 }
 
-.demo-nav {
-  /* height: 30px;
-  margin-left: 10px;
-  margin-top: 5px;
-  line-height: 30px;
-  margin-bottom: 16px;
-  background: #f8f8f8; */
-  align-items: center;
-}
-.demo-nav a {
-  line-height: 30px;
-  padding: 0 8px;
-}
-
 body {
   height: 95%;
   position: relative;
  }
 
 .main-container {
-  min-height: 100vh; /* will cover the 100% of viewport */
+  min-height: 75vh; /* will cover the 100% of viewport */
   overflow: hidden;
   display: block;
   position: relative;
-  padding-bottom: 10px; /* height of your footer */
  }
 
 
 footer {
-  position: absolute;
-  height: 5%;
+  height: 10px;
   bottom: 0;
   width: 100%;
  }

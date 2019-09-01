@@ -23,6 +23,17 @@
     font-size: 25px;
 }
 
+@media only screen and (max-width: 900px) {
+    .msgTime {
+        display: none;
+        visibility: hidden;
+    }
+    .msgTitle{
+        text-align: center;
+        width: 100%;
+    }
+  }
+
 .AlarmleftDiv{
     float: left;
     width: 49%;

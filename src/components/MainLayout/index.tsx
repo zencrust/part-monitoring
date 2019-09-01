@@ -132,7 +132,13 @@ export default class MainLayout extends React.Component<any, IState> {
     return (
       <div>
         <BrowserRouter>
-          <Navbar color="info">
+          <Navbar color="dark">
+            <Navbar.Brand>
+                <h2 className="title-header">
+                      Smart Dashboard
+                </h2>
+                <Navbar.Burger />
+            </Navbar.Brand>
             <Navbar.Menu>
               <Navbar.Segment align="start">
                 <Link className="navbar-item" to={`/`}>Home</Link>
@@ -140,9 +146,6 @@ export default class MainLayout extends React.Component<any, IState> {
                 <Link className="navbar-item" to={`/status`}>Status</Link>
               </Navbar.Segment>
             </Navbar.Menu>
-            <h2 className="title-header">
-                  Smart Dashboard
-            </h2>
             <Message color={this.state.status.color} className="Alert-banner">
                   <Message.Header>
                     {this.state.status.message}
