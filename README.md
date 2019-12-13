@@ -10,6 +10,10 @@ Use yarn install and yarn start to debug the application
 
 Note:
 Run chrome with  --autoplay-policy=no-user-gesture-required flag to run in kiosk mode
+for example use
+from ~/.config/lxsession/LXDE-pi/autostart
+@chromium-browser --autoplay-policy=no-user-gesture-required --incognito --kiosk http://smartdashboard.local:3000/
+
 Or use chrome tab to expcitly set sound to allow not allow(default)
 
 This will enable auto play alarms which is blocked by default in chrome 74+

@@ -24,7 +24,7 @@ const PlaySound = React.memo((props: IProps) => {
     }
     return (
         <div>
-            <audio src="assets/sound/alert.wav" autoPlay={true} loop={true}/>
+            <audio src="assets/sound/alert.mp3" autoPlay={true} loop={true}/>
         </div>
     );
 }, areEqual);

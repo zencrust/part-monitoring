@@ -1,5 +1,5 @@
 {
-    "mqtt_server": "smartdashboard.local",
+    "mqtt_server": "",
     "port":9001,
     "user_name": "",
     "password": "",
