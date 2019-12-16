@@ -141,7 +141,6 @@ export default class MainLayout extends React.Component<any, IState> {
                 <h3 className="brand-header">
                       X-Ray
                 </h3>
-                <Navbar.Burger />
             </Navbar.Brand>
             <Message color={this.state.status.color} className="Alert-banner">
                   <Message.Header>
