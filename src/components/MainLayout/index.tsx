@@ -128,7 +128,7 @@ export default class MainLayout extends React.Component<any, IState> {
             <Navbar.Brand>
               <Navbar.Item href="#">
                 <div className="title-header">
-                  Smart Dashboard
+                  Kit Request Dashboard
                 </div>
               </Navbar.Item>
             </Navbar.Brand>
