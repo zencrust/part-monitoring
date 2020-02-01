@@ -4,7 +4,7 @@ import "./styles.scss";
 
 import { Content, Footer, Message, Navbar } from "rbx";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import { isBoolean, isNumber, isUndefined } from "util";
+import { isUndefined } from "util";
 import MqttManager, { ISettings, IValueType, ServerStatus } from "../../MqttManager";
 import { NotFound } from "../404";
 import AlarmList from "../Alarm/index";
@@ -103,9 +103,6 @@ export default class MainLayout extends React.Component<any, IState> {
                 update(v, {$merge: {time: value.value, isConnected: true}}),
             }})});
         }
-
-        // this.setState({ alarms: val });
-        // console.log(val);
       });
 
     mqtt_sub.then((x) => {
@@ -126,9 +123,9 @@ export default class MainLayout extends React.Component<any, IState> {
         <BrowserRouter>
           <Navbar color="info">
             <Navbar.Brand>
+                  Kit Request Dashboard
               <Navbar.Item href="#">
                 <div className="title-header">
-                  Kit Request Dashboard
                 </div>
               </Navbar.Item>
             </Navbar.Brand>
@@ -139,13 +136,23 @@ export default class MainLayout extends React.Component<any, IState> {
                 <Link className="navbar-item" to={`/status`}>Status</Link>
               </Navbar.Segment>
             </Navbar.Menu>
-          </Navbar>
-          <Content className="main-container">
+            <Navbar.Brand>
+                <img src="assets/images/gelogo.png" width="50" height="10"/>
+                <h3 className="brand-header">
+                      X-Ray
+                </h3>
+            </Navbar.Brand>
             <Message color={this.state.status.color} className="Alert-banner">
-              <Message.Header>
-                {this.state.status.message}
-              </Message.Header>
+                  <Message.Header>
+                    {this.state.status.message}
+                  </Message.Header>
             </Message>
+            {/* <h3>GE X-ray</h3> */}
+            {/* <img src="assets/images/gelogo.png" width="65" height="20"/> */}
+          </Navbar>
+
+          <Content className="main-container">
+
             <Switch>
               <Route exact path="/" render={ (props) => <AlarmList alarms={this.state.stationStatus} settings={this.state.settings} />} />
               <Route path="/report" component={ReportLayout} />

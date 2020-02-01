@@ -98,7 +98,7 @@ const ReportLayout: React.FC<Props> = (p) => {
     }
 
     return (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="center">
                 <Field horizontal>
                     <Field.Label size="normal">
                         <Label>From: </Label>
