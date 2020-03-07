@@ -6,33 +6,22 @@ export interface ServerStatus {
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export interface IBaseValueType<T1, T2> {
-    updateType: T1;
-    value: T2;
+export interface StationData{
+    AlertId : string;
+    Alert : string;
+    AlertType: string;
+    Location: string;
+    InitiatedBy: string;
+    AcknowledgeBy: string;
+    ResolvedBy: string;
+    InitiateTime: string;
+    IsActive: boolean;
+    AcknowledgeTime: string;
+    ResolvedTime: string;
+    Slalevel: number;
 }
 
-export type IBooleanValueType = IBaseValueType<"IsConnected", boolean>;
-export type NumberUpdateType = "time" | "lastUpdateTime" | "wifiStrength";
-export type INumericValueType = IBaseValueType<NumberUpdateType, number>;
-export type ISetServerStatusType = IBaseValueType<"setServerStatus", ServerStatus>;
-export type ISetSettingsType = IBaseValueType<"Settings", ISettings>;
-
-export type IValueType = IBooleanValueType | INumericValueType;
-export type IValueFuntionType = (stationName: string, value: IValueType) => void;
-
-function CreateBooleanValueType(value: boolean): IBooleanValueType {
-    return {
-        updateType: "IsConnected",
-        value,
-    };
-}
-
-function CreateNumericValueType(updateType: NumberUpdateType, value: number): INumericValueType {
-    return {
-        updateType,
-        value,
-    };
-}
+export type IValueFuntionType = (stationData: StationData) => void;
 
 export interface ISettings {
     mqtt_server: string;
@@ -81,21 +70,8 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         client.on("message", (topic, msg) => {
             // console.log(topic);
 
-            const [, deviceId, func, ch] = topic.split("/");
-            if (func === "dio" && ch === "Switch Pressed") {
-
-                let timeDelay = parseInt(msg.toString());
-                timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
-                setValues(deviceId, CreateNumericValueType("time", timeDelay));
-            } else if (func === "heartbeat") {
-                setValues(deviceId, CreateBooleanValueType(false));
-            } else if (func === "telemetry") {
-                if (ch === "last update time") {
-                    setValues(deviceId, CreateNumericValueType("lastUpdateTime", parseInt(msg.toString())));
-                } else if (ch === "wifi Signal Strength") {
-                    setValues(deviceId, CreateNumericValueType("wifiStrength", parseInt(msg.toString())));
-                }
-            }
+            let stationMsg: StationData = JSON.parse(msg.toString());
+            setValues(stationMsg);
         });
     };
 
@@ -107,12 +83,12 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         client.on("reconnect", () => {
             console.log("connecting error");
             if (!client.connected) {
-                setServerStatus({ message: "connection failed", color: "danger" });
+                setServerStatus({ message: "connection failed", color: "error" });
             }
         });
         client.on("error", () => {
             console.log("connection error");
-            setServerStatus({ message: "connection failed ", color: "danger" });
+            setServerStatus({ message: "connection failed ", color: "error" });
         });
     };
 
@@ -132,7 +108,7 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
                 }];
                 // console.log(val);
                 const client = mqtt.connect(options);
-                client.subscribe("partalarm/#", { qos: 2 });
+                client.subscribe("partalarm2/#", { qos: 2 });
                 console.log("connection sub", val.mqtt_server);
                 setServerStatus({ message: "Connecting ", color: "warning" });
                 _registerErrors(client);

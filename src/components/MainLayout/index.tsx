@@ -1,15 +1,14 @@
 import update from "immutability-helper"; // ES6
-import React from "react";
+import React, { useState } from 'react';
 import "./styles.scss";
 
 import { Content, Footer, Message, Navbar } from "rbx";
 import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
-import { isUndefined } from "util";
-import MqttManager, { ISettings, IValueType, ServerStatus } from "../../MqttManager";
+import MqttManager, { ISettings, StationData, ServerStatus } from "../../MqttManager";
 import { NotFound } from "../404";
 import AlarmList from "../Alarm/index";
 import ReportLayout from "../Report";
-import StationStatus from "../Status";
+export type IStationStatus = StationData;
 
 export type StationStatusType = Map<string, IStationStatus>;
 
@@ -18,106 +17,27 @@ interface IState {
   content: string;
   status: ServerStatus;
   settings?: ISettings;
-  stationStatus: StationStatusType;
+  stationData: StationStatusType;
 }
 
-export interface IStationStatus {
-  time: number;
-  name: string;
-  lastUpdateTime?: number;
-  wifiStrength: number;
-  isConnected: boolean;
-}
+export function MainLayoutF(){
+  const [status, setStatus] = useState<ServerStatus>({color:"info", message:"initializing"});
+  const [settings, setSettings] = useState<ISettings?>(null);
+  const [stationData, setStationData] = useState({});
 
-function CreateDefaultStationStatus(stationName: string, value: IValueType): IStationStatus {
-  const v: IStationStatus =  {
-    time: 0,
-    name: stationName,
-    lastUpdateTime: undefined,
-    wifiStrength: 0,
-    isConnected: true,
-  };
+  const mqttSub = MqttManager((val: ServerStatus) => {
+    setStatus(val);
+  },
+  (data: StationData) => {
+    setStationData(
+      update(stationStatus, { [data.] : { $set: data }}));
+  });
+  let disconnect: VoidFunction? = null;
+  mqttSub.then((x) => {
+    setSettings(x.settings);
+    disconnect = x.disconnect;
+  });
 
-  if (value.updateType === "IsConnected") {
-      v.isConnected = value.value;
-  } else if (value.updateType === "lastUpdateTime") {
-      v.lastUpdateTime = value.value;
-  } else if (value.updateType === "wifiStrength") {
-      v.wifiStrength = value.value;
-  } else if (value.updateType === "time") {
-      v.time = value.value;
-      v.isConnected = true;
-  }
-
-  return v;
-}
-
-export default class MainLayout extends React.Component<any, IState> {
-  public disconnect: VoidFunction | undefined;
-  /**
-   *
-   */
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      collapsed: false,
-      content: "1",
-      status: { color: "info", message: "Initializing" },
-      settings: undefined,
-      stationStatus: new Map(),
-    };
-  }
-
-  public componentDidMount() {
-    const mqtt_sub = MqttManager((val: ServerStatus) => {
-      this.setState({ status: val });
-    },
-      (stationName: string, value: IValueType) => {
-        let v = this.state.stationStatus.get(stationName);
-
-        if (v === undefined) {
-          v = CreateDefaultStationStatus(stationName, value);
-          this.setState({
-            stationStatus: update(this.state.stationStatus, { [stationName] : { $set: v }}),
-          });
-        }
-
-        if (value.updateType === "IsConnected") {
-            this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
-                update(v, {$merge: {isConnected: value.value}}),
-            }})});
-        } else if (value.updateType === "lastUpdateTime") {
-            this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
-                update(v, {$merge: {lastUpdateTime: value.value}}),
-            }})});
-        } else if (value.updateType === "wifiStrength") {
-            this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
-                update(v, {$merge: {wifiStrength: value.value}}),
-            }})});
-        } else if (value.updateType === "time") {
-            this.setState({
-              stationStatus: update(this.state.stationStatus, { [stationName] : { $set:
-                update(v, {$merge: {time: value.value, isConnected: true}}),
-            }})});
-        }
-      });
-
-    mqtt_sub.then((x) => {
-        this.setState({ settings: x.settings });
-        this.disconnect = x.disconnect;
-      });
-  }
-
-  public componentWillUnmount() {
-    if (!isUndefined(this.disconnect)) {
-      this.disconnect();
-    }
-  }
-
-  public render() {
     return (
       <div>
         <BrowserRouter>
@@ -164,5 +84,4 @@ export default class MainLayout extends React.Component<any, IState> {
         </BrowserRouter>
       </div>
     );
-  }
 }

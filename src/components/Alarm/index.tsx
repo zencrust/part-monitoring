@@ -3,7 +3,7 @@ import React from "react";
 import { isUndefined } from "util";
 import { ISettings } from "../../MqttManager";
 import { ToTimeFormat } from "../../Utils/index";
-import {IStationStatus, StationStatusType} from "../MainLayout";
+import { StationStatusType } from "../MainLayout";
 import PlaySound from "../PlaySound/index";
 import "./styles.scss";
 
@@ -23,21 +23,13 @@ function calculateColor(time: number, settings?: ISettings) {
     return "danger";
 }
 
-function RecordToArray(alarms: StationStatusType) {
-    const retval: IStationStatus[] = [];
-    alarms.forEach((v, k) => {
-        if (v.isConnected && v.time > 0) {
-            retval.push(v);
-        }
-    });
+function CreateTile({}){
 
-    retval.sort((a, b) => b.time - a.time);
-    return retval;
 }
 
 function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
-    const val = RecordToArray(props.alarms);
-    if (val.length === 0) {
+    // const val = RecordToArray(props.alarms);
+    if (StationStatusType.length === 0) {
         return(
             <div className="allClear">
                 No stations requested new kits
