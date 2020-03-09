@@ -1,14 +1,15 @@
 import axios from "axios";
-import mqtt, { IClientOptions } from "mqtt";
+import mqtt, {IClientOptions} from "mqtt";
+import {isUndefined} from "util";
 
 export interface ServerStatus {
     message: string;
     color: "info" | "success" | "warning" | "link" | "black" | "white" | "primary" | "danger" | "light" | "dark" | undefined;
 }
 
-export interface StationData{
-    AlertId : string;
-    Alert : string;
+export interface StationData {
+    AlertId: string;
+    Alert: string;
     AlertType: string;
     Location: string;
     InitiatedBy: string;
@@ -18,7 +19,9 @@ export interface StationData{
     IsActive: boolean;
     AcknowledgeTime: string;
     ResolvedTime: string;
-    Slalevel: number;
+    SlaLevel: number;
+    timeElasped: number;
+
 }
 
 export type IValueFuntionType = (stationData: StationData) => void;
@@ -30,6 +33,7 @@ export interface ISettings {
     password?: string;
     port: number;
     MaxWaitTime: number;
+    location: string[];
 }
 
 export interface IMqttConstructed {
@@ -41,7 +45,7 @@ function CreateMqttValue(disconnect: VoidFunction, settings: ISettings): IMqttCo
     return { disconnect, settings };
 }
 
-export default function MqttManager(setServerStatus: (val: ServerStatus) => void,
+export default function MqttManager(locations: string[], setServerStatus: (val: ServerStatus) => void,
                                     setValues: IValueFuntionType) {
 
     const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
@@ -69,26 +73,34 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         console.log("_registerChanges");
         client.on("message", (topic, msg) => {
             // console.log(topic);
-
-            let stationMsg: StationData = JSON.parse(msg.toString());
-            setValues(stationMsg);
+            const [, fn, machine_name] = topic.split("/");
+            if (fn === "will_message" && machine_name === "emailParser1") {
+                if (msg.toString() === "0") {
+                    setServerStatus({message: "Email server connection failed", color: "danger"});
+                } else {
+                    setServerStatus({message: "Connection successful", color: "success"});
+                }
+            } else {
+                let stationMsg: StationData = JSON.parse(msg.toString());
+                setValues(stationMsg);
+            }
         });
     };
 
     const _registerErrors = (client: mqtt.MqttClient) => {
         client.on("connect", () => {
             console.log("Connected");
-            setServerStatus({ message: "Connection succeessful", color: "success" });
+            setServerStatus({message: "Connection successful", color: "success"});
         });
         client.on("reconnect", () => {
             console.log("connecting error");
             if (!client.connected) {
-                setServerStatus({ message: "connection failed", color: "error" });
+                setServerStatus({message: "connection failed", color: "danger"});
             }
         });
         client.on("error", () => {
             console.log("connection error");
-            setServerStatus({ message: "connection failed ", color: "error" });
+            setServerStatus({message: "connection failed ", color: "danger"});
         });
     };
 
@@ -108,9 +120,17 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
                 }];
                 // console.log(val);
                 const client = mqtt.connect(options);
-                client.subscribe("partalarm2/#", { qos: 2 });
+                client.subscribe("partalarm2/will_message/#", {qos: 2});
+                if (locations.length === 0) {
+                    client.subscribe("partalarm2/eAndon/#", {qos: 2});
+                } else {
+                    locations.forEach((v) => {
+                        client.subscribe(`partalarm2/eAndon/${v}/#`, {qos: 2});
+                    });
+                }
+
                 console.log("connection sub", val.mqtt_server);
-                setServerStatus({ message: "Connecting ", color: "warning" });
+                setServerStatus({message: "Connecting ", color: "warning"});
                 _registerErrors(client);
                 _registerChanges(client);
                 resolve(CreateMqttValue(() => {

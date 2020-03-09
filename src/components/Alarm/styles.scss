@@ -1,14 +1,38 @@
-.msgTitle{
+.msgTitle {
     float: left;
     margin-left: 10px;
     color: #17355c;
     font-size: 20px;
 }
 
-.msgTime{
+.alarmHead {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0px 20px;
+}
+
+.alarmContent {
+    div {
+        font-size: 18px;
+        font-weight: bold;
+        margin: 5px 0px;
+
+        span {
+            font-size: 18px;
+            font-weight: normal;
+        }
+    }
+}
+
+.alarmCard {
+    width: 300px;
+    margin: 5px 5px;
+}
+
+.msgTime {
     font-size: 20px;
-    float: right;
-    color: rgb(139, 101, 138);
+    color: rgb(64, 84, 139);
     margin-right: 20px;
 }
 

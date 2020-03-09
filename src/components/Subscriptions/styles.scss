@@ -1,29 +1,24 @@
-.statusTitle{
-    float: left;
-    margin-left: 10px;
-    color: #17355c;
-    font-size: 20px;
-}
+.subscriptionHead {
+  horiz-align: center;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: 0px 20px;
+  column-gap: 40px;
+  align-content: flex-start;
+  max-height: 100%;
 
-.statusConected{
-    font-size: 20px;
-    float: right;
-    color: rgb(139, 101, 138);
-    margin-right: 20px;
-}
+  button {
+    margin: 0 10px;
+  }
 
-.headerTitle {
-    width: 100%;
-}
+  div[clas=control] {
+    margin: 0;
+    align-self: flex-start
+  }
 
-.statushead{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin: 0px 20px;
-}
-
-.statusCard{
-    width: 300px;
-    margin: 5px 5px;
+  input[type=checkbox] {
+    margin-right: 10px;
+  }
 }
