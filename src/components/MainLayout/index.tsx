@@ -10,6 +10,7 @@ import AlarmList from "../Alarm/index";
 import ReportLayout from "../Report";
 import Subscription from "../Subscriptions";
 import queryString from "query-string";
+import {isstring} from "../../Utils";
 
 export type IStationStatus = StationData;
 
@@ -19,13 +20,7 @@ interface IState {
     status: ServerStatus;
     settings?: ISettings;
     stationData: StationStatusType;
-    location: string[];
 }
-
-function isstring(x: any): x is string {
-    return typeof x === 'string';
-}
-
 
 export default class MainLayout extends React.Component<any, IState> {
     constructor(props: any) {
@@ -34,18 +29,14 @@ export default class MainLayout extends React.Component<any, IState> {
             status: {color: "info", message: "Initializing"},
             settings: undefined,
             stationData: new Map<string, StationData>(),
-            location: []
         }
     }
 
     public componentDidMount() {
-        const alertLocations = queryString.parse(window.location.search);
-        console.log("alertLocations:", alertLocations);
-        // console.log(window.location.search);
-        let loc = this.state.location;
+        const alertLocations = localStorage.getItem("SelectedLocations");
+        let loc = [];
         if (isstring(alertLocations)) {
             loc = alertLocations.split(",");
-            this.setState({location: loc});
         }
 
         const mqttSub = MqttManager(loc, (val => {
@@ -75,7 +66,7 @@ export default class MainLayout extends React.Component<any, IState> {
                         <Navbar.Brand>
                             <Navbar.Item href="#">
                                 <div className="title-header">
-                                    Kit Request Dashboard
+                                    eAndOn Dashboard
                                 </div>
                             </Navbar.Item>
                         </Navbar.Brand>

@@ -1,8 +1,9 @@
-import {Button, Checkbox, Control, Field, Label, List} from "rbx";
+import {Button, Checkbox, Control, Field, Label} from "rbx";
 import React, {useEffect, useState} from "react";
 import "./styles.scss";
 import {ISettings} from "../../MqttManager";
 import update from "immutability-helper"; // ES6
+import {Redirect} from 'react-router-dom';
 
 function initializeCheckBox(location: string[], settings: ISettings) {
     const returnValue: Map<string, boolean> = new Map<string, boolean>();
@@ -24,7 +25,7 @@ function dictToStr(value: Map<string, boolean>) {
             returnValue = returnValue + k + ",";
         }
     });
-    return returnValue;
+    return returnValue.substring(0, Math.max(0, returnValue.length - 1));
 }
 
 function removeSpace(str: string) {
@@ -58,21 +59,27 @@ const Subscription = (props: { settings?: ISettings }) => {
 
     return (
         <div>
-            <form className="subscriptionHead">
-                {props.settings.location.map(x =>
-                    <Field horizontal key={removeSpace(x)}>
-                        <Control>
-                            <Label>
-                                <Checkbox defaultChecked={preset.has(x)}
-                                          onChange={(e) => setPreset(update(preset, {[x]: {$set: !preset.get(x)}}))}/>{x}
-                            </Label>
-                        </Control>
-                    </Field>,
-                )}
-                <Field horizontal>
+            <form>
+                <div className="subscriptionHead">
+                    {props.settings.location.map(x =>
+                        <Field horizontal key={removeSpace(x)} className="subscriptionItem">
+                            <Control>
+                                <Label>
+                                    <Checkbox checked={preset.get(x) === true}
+                                              onChange={(e) => setPreset(update(preset, {[x]: {$set: !preset.get(x)}}))}/>
+                                    <span>{x}</span>
+                                </Label>
+                            </Control>
+                        </Field>,
+                    )}
+                </div>
+                <Field kind="group" className="SubscriptionButtonGroup">
                     <Control>
                         <Button color="link"
-                                onClick={(e) => localStorage.setItem("SelectedLocations", dictToStr(preset))}>Apply</Button>
+                                onClick={(e) => {
+                                    localStorage.setItem("SelectedLocations", dictToStr(preset));
+                                    e.preventDefault();
+                                }}>Apply</Button>
                     </Control>
                     <Control>
                         <Button color="danger">Cancel</Button>

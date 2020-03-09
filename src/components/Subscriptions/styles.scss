@@ -5,20 +5,29 @@
   flex-direction: column;
   flex-wrap: wrap;
   margin: 0px 20px;
-  column-gap: 40px;
+  column-count: 3;
   align-content: flex-start;
   max-height: 100%;
-
-  button {
-    margin: 0 10px;
-  }
+  height: 80vh;
 
   div[clas=control] {
-    margin: 0;
-    align-self: flex-start
   }
+}
+
+.subscriptionItem {
+  margin: 0;
+  align-self: stretch;
 
   input[type=checkbox] {
     margin-right: 10px;
   }
+
+  span {
+    margin-right: 10px;
+  }
 }
+
+.SubscriptionButtonGroup {
+  margin-left: 20px;
+}
+

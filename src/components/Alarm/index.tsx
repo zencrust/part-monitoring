@@ -1,14 +1,13 @@
 import {Card, Content, List, Progress} from "rbx";
 import React from "react";
-import {isUndefined} from "util";
 import {ISettings, StationData} from "../../MqttManager";
-import {StationStatusType, IStationStatus} from '../MainLayout'
-import {ToTimeFormat} from "../../Utils/index";
+import {StationStatusType} from '../MainLayout'
+import {ToTimeFormat, isstring} from "../../Utils";
 import PlaySound from "../PlaySound/index";
 import "./styles.scss";
 
 function calculateColor(time: number, settings?: ISettings) {
-    if (isUndefined(settings)) {
+    if (settings === undefined) {
         return "warning";
     }
 
@@ -42,10 +41,15 @@ function RecordToArray(alarms: StationStatusType) {
 
 function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
     const val = RecordToArray(props.alarms);
+    let loc = localStorage.getItem("SelectedLocations");
+    let noActiveAndOn = "No eAndons currently active";
+    if (isstring(loc) && loc !== "") {
+        noActiveAndOn += ` for ${loc}`
+    }
     if (val.length === 0) {
         return (
             <div className="allClear">
-                No eAndons currently active
+                {noActiveAndOn}
             </div>
         );
     }

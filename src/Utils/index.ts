@@ -6,8 +6,12 @@ function appendzero(num: number) {
     return "0" + num.toString();
 }
 
+export function isstring(x: any): x is string {
+    return typeof x === 'string';
+}
+
 export function ToTimeFormat(diff: number) {
-    const hours   = Math.floor(diff / 3600);
+    const hours = Math.floor(diff / 3600);
     const minutes = Math.floor((diff - (hours * 3600)) / 60);
     const seconds = Math.floor(diff - (hours * 3600) - (minutes * 60));
 
