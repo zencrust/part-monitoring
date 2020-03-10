@@ -3,11 +3,10 @@ import React, {useEffect, useState} from "react";
 import "./styles.scss";
 import {ISettings} from "../../MqttManager";
 import update from "immutability-helper"; // ES6
-import {Redirect} from 'react-router-dom';
 
 function initializeCheckBox(location: string[], settings: ISettings) {
     const returnValue: Map<string, boolean> = new Map<string, boolean>();
-    settings.location.forEach((v, k) => {
+    settings.location.forEach((v) => {
         if (location.length === 0) {
             returnValue.set(v, false);
         } else {
@@ -66,7 +65,7 @@ const Subscription = (props: { settings?: ISettings }) => {
                             <Control>
                                 <Label>
                                     <Checkbox checked={preset.get(x) === true}
-                                              onChange={(e) => setPreset(update(preset, {[x]: {$set: !preset.get(x)}}))}/>
+                                              onChange={(e: Event) => setPreset(update(preset, {[x]: {$set: !preset.get(x)}}))}/>
                                     <span>{x}</span>
                                 </Label>
                             </Control>
@@ -76,7 +75,7 @@ const Subscription = (props: { settings?: ISettings }) => {
                 <Field kind="group" className="SubscriptionButtonGroup">
                     <Control>
                         <Button color="link"
-                                onClick={(e) => {
+                                onClick={(e: Event) => {
                                     localStorage.setItem("SelectedLocations", dictToStr(preset));
                                     e.preventDefault();
                                 }}>Apply</Button>

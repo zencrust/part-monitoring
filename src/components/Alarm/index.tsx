@@ -2,7 +2,7 @@ import {Card, Content, List, Progress} from "rbx";
 import React from "react";
 import {ISettings, StationData} from "../../MqttManager";
 import {StationStatusType} from '../MainLayout'
-import {ToTimeFormat, isstring} from "../../Utils";
+import {isstring, ToTimeFormat} from "../../Utils";
 import PlaySound from "../PlaySound/index";
 import "./styles.scss";
 
@@ -22,21 +22,17 @@ function calculateColor(time: number, settings?: ISettings) {
     return "danger";
 }
 
-interface StationDataTime extends StationData {
-    timeElasped: number;
-}
-
 function RecordToArray(alarms: StationStatusType) {
-    const retval: StationData[] = [];
-    alarms.forEach((v, k) => {
+    const data: StationData[] = [];
+    alarms.forEach((v) => {
         if (v.IsActive && v.SlaLevel < 2) {
-            v.timeElasped = Math.abs(new Date().getTime() - new Date(v.InitiateTime).getTime()) / 1000;
-            retval.push(v);
+            v.timeElapsed = Math.abs(new Date().getTime() - new Date(v.InitiateTime).getTime()) / 1000;
+            data.push(v);
         }
     });
 
-    retval.sort((a, b) => b.timeElasped - a.timeElasped);
-    return retval;
+    data.sort((a, b) => b.timeElapsed - a.timeElapsed);
+    return data;
 }
 
 function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
@@ -69,15 +65,15 @@ function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
                             </Card.Header>
                             <Card.Content>
                                 <Content className="alarmContent">
-                                    <Progress value={item.timeElasped} min={0}
-                                              max={isUndefined(props.settings) ? 60 : props.settings.MaxWaitTime}
-                                              color={calculateColor(item.timeElasped, props.settings)}/>
+                                    <Progress value={item.timeElapsed} min={0}
+                                              max={props.settings === undefined ? 60 : props.settings.MaxWaitTime}
+                                              color={calculateColor(item.timeElapsed, props.settings)}/>
                                     <div>Initiated By: <span>{item.InitiatedBy}</span></div>
                                     <div>Alert Type: <span>{item.AlertType}</span></div>
                                     <div>Alert: <span>{item.Alert}</span></div>
-                                    {/*<div>Time Elapsed: <time dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.timeElasped)}</time></div>*/}
+                                    {/*<div>Time Elapsed: <time dateTime={ToTimeFormat(item.time)}>{ToTimeFormat(item.timeElapsed)}</time></div>*/}
                                     <div className="msgTime">Time Elapsed: <time
-                                        dateTime={ToTimeFormat(item.timeElasped)}>{ToTimeFormat(item.timeElasped)}</time>
+                                        dateTime={ToTimeFormat(item.timeElapsed)}>{ToTimeFormat(item.timeElapsed)}</time>
                                     </div>
 
                                 </Content>

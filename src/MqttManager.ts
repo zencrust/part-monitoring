@@ -1,6 +1,5 @@
 import axios from "axios";
 import mqtt, {IClientOptions} from "mqtt";
-import {isUndefined} from "util";
 
 export interface ServerStatus {
     message: string;
@@ -20,8 +19,7 @@ export interface StationData {
     AcknowledgeTime: string;
     ResolvedTime: string;
     SlaLevel: number;
-    timeElasped: number;
-
+    timeElapsed: number;
 }
 
 export type IValueFuntionType = (stationData: StationData) => void;
@@ -104,7 +102,7 @@ export default function MqttManager(locations: string[], setServerStatus: (val: 
         });
     };
 
-    const returnPromise = new Promise<IMqttConstructed>((resolve, reject) => {
+    return new Promise<IMqttConstructed>((resolve, reject) => {
         axios.get<ISettings>("assets/config/settings.json")
             .then((v) => {
                 const val = v.data;
@@ -143,6 +141,4 @@ export default function MqttManager(locations: string[], setServerStatus: (val: 
                 console.log("error reading status file", e);
             });
     });
-
-    return returnPromise;
 }

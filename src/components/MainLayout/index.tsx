@@ -1,15 +1,14 @@
 import update from "immutability-helper"; // ES6
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import "./styles.scss";
 
 import {Content, Footer, Message, Navbar} from "rbx";
 import {BrowserRouter, Link, Route, Switch} from "react-router-dom";
-import MqttManager, {ISettings, StationData, ServerStatus} from "../../MqttManager";
+import MqttManager, {ISettings, ServerStatus, StationData} from "../../MqttManager";
 import {NotFound} from "../404";
 import AlarmList from "../Alarm/index";
 import ReportLayout from "../Report";
 import Subscription from "../Subscriptions";
-import queryString from "query-string";
 import {isstring} from "../../Utils";
 
 export type IStationStatus = StationData;
@@ -34,7 +33,7 @@ export default class MainLayout extends React.Component<any, IState> {
 
     public componentDidMount() {
         const alertLocations = localStorage.getItem("SelectedLocations");
-        let loc = [];
+        let loc: string[] = [];
         if (isstring(alertLocations)) {
             loc = alertLocations.split(",");
         }
@@ -78,7 +77,7 @@ export default class MainLayout extends React.Component<any, IState> {
                             </Navbar.Segment>
                         </Navbar.Menu>
                         <Navbar.Brand>
-                            <img src="assets/images/gelogo.png" width="50" height="10"/>
+                            <img src="assets/images/gelogo.png" alt="gelogo" width="50" height="10"/>
                             <h3 className="brand-header">
                                 X-Ray
                             </h3>
@@ -96,11 +95,13 @@ export default class MainLayout extends React.Component<any, IState> {
 
                         <Switch>
                             <Route exact path="/"
-                                   render={(props) => <AlarmList alarms={this.state.stationData}
-                                                                 settings={this.state.settings}/>}/>
+                                   render={() => <AlarmList alarms={this.state.stationData}
+                                                            settings={this.state.settings}/>}/>
                             <Route path="/report" component={ReportLayout}/>
                             <Route path="/subscription"
-                                   render={(props) => <Subscription settings={this.state.settings}/>}/>
+                                   render={() => {
+                                       return <Subscription settings={this.state.settings}/>;
+                                   }}/>
                             <Route component={NotFound}/>
                         </Switch>
                     </Content>
