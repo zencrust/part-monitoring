@@ -14,7 +14,7 @@ function areEqual(prevProps: IProps, nextProps: IProps) {
     the same result as passing prevProps to render,
     otherwise return false
     */
-   return prevProps.playSound === nextProps.playSound;
+    return prevProps.playSound === nextProps.playSound;
 }
 
 const PlaySound = React.memo((props: IProps) => {

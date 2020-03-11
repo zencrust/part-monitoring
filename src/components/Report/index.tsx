@@ -1,8 +1,6 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { Field, Label, Control, Button } from "rbx";
-import React, { useEffect, useState } from "react";
-import { isUndefined } from "util";
-import { ToDateTimeFormat, ToTimeFormat } from "../../Utils/index";
+import axios, {AxiosRequestConfig} from "axios";
+import {Button, Control, Field, Label} from "rbx";
+import React, {useState} from "react";
 import "./styles.scss";
 
 import DatePicker from "react-datepicker";
@@ -23,7 +21,9 @@ interface IState {
     offset: number;
     error: boolean;
 }
-export interface Props extends React.ComponentPropsWithoutRef<"div"> { }
+
+export interface Props extends React.ComponentPropsWithoutRef<"div"> {
+}
 
 const ReportLayout: React.FC<Props> = (p) => {
     var stdate = new Date();
@@ -31,14 +31,13 @@ const ReportLayout: React.FC<Props> = (p) => {
     const [startDate, setStartDate] = useState(stdate);
     const [endDate, setEndDate] = useState(new Date());
 
-    const setDate = (date: Date | null, f: React.Dispatch<React.SetStateAction<Date>> ) => {
-        if(date != null){
+    const setDate = (date: Date | null, f: React.Dispatch<React.SetStateAction<Date>>) => {
+        if (date != null) {
             f(date);
         }
     }
 
-    const handleSubmit = (event : any) => 
-    {
+    const handleSubmit = (event: any) => {
         event.preventDefault();
         const uri = "/api/v1/getTimereport";
         const CancelToken = axios.CancelToken;
@@ -47,13 +46,13 @@ const ReportLayout: React.FC<Props> = (p) => {
         const req: AxiosRequestConfig = {
             params: {
                 from: startDate,
-                to : endDate,
+                to: endDate,
             },
             cancelToken: source.token,
         };
         axios.get<string>(uri, req)
             .then((logs) => {
-                var blob = new Blob([logs.data], { type: 'text/csv;charset=utf-8;' });
+                var blob = new Blob([logs.data], {type: 'text/csv;charset=utf-8;'});
                 var link = document.createElement("a");
                 var url = URL.createObjectURL(blob);
                 link.setAttribute("href", url);
@@ -98,65 +97,65 @@ const ReportLayout: React.FC<Props> = (p) => {
     }
 
     return (
-            <form onSubmit={handleSubmit} className="center">
-                <Field horizontal>
-                    <Field.Label size="normal">
-                        <Label>From: </Label>
-                    </Field.Label>
-                    <Field.Body>
-                        <Field>
-                            <Control>
-                                <DatePicker
-                                    selected={startDate}
-                                    onChange={date => setDate(date, setStartDate)}
-                                    showTimeSelect
-                                    timeFormat="HH"
-                                    timeIntervals={60}
-                                    selectsStart
-                                    timeCaption="time"
-                                    dateFormat="MMMM d, yyyy h aa"
-                                    endDate={endDate}
-                                    />
-                            </Control>
-                        </Field>
-                    </Field.Body>
-
-                </Field>
-                <Field horizontal>
-                    <Field.Label size="normal">
-                        <Label>To: </Label>
-                    </Field.Label>
-                    <Field.Body>
-                        <Field>
-
-                    <Control>
-                        <DatePicker
-                            selected={endDate}
-                            onChange={date => setDate(date, setEndDate)}
-                            showTimeSelect
-                            timeFormat="HH"
-                            timeIntervals={60}
-                            timeCaption="time"
-                            selectsEnd
-                            dateFormat="MMMM d, yyyy h aa"
-                            endDate={endDate}
-                            minDate={startDate}
-                        />
-                    </Control>
-                    </Field>
-                    </Field.Body>
-                </Field>
-                <Field horizontal>
-                <Field.Label /> {/* Left empty for spacing  */}
+        <form onSubmit={handleSubmit} className="center">
+            <Field horizontal>
+                <Field.Label size="normal">
+                    <Label>From: </Label>
+                </Field.Label>
                 <Field.Body>
-                <Field>
-                    <Control>
-                        <Button color="link">Submit</Button>
+                    <Field>
+                        <Control>
+                            <DatePicker
+                                selected={startDate}
+                                onChange={date => setDate(date, setStartDate)}
+                                showTimeSelect
+                                timeFormat="HH"
+                                timeIntervals={60}
+                                selectsStart
+                                timeCaption="time"
+                                dateFormat="MMMM d, yyyy h aa"
+                                endDate={endDate}
+                            />
                         </Control>
-                </Field>
+                    </Field>
+                </Field.Body>
+
+            </Field>
+            <Field horizontal>
+                <Field.Label size="normal">
+                    <Label>To: </Label>
+                </Field.Label>
+                <Field.Body>
+                    <Field>
+
+                        <Control>
+                            <DatePicker
+                                selected={endDate}
+                                onChange={date => setDate(date, setEndDate)}
+                                showTimeSelect
+                                timeFormat="HH"
+                                timeIntervals={60}
+                                timeCaption="time"
+                                selectsEnd
+                                dateFormat="MMMM d, yyyy h aa"
+                                endDate={endDate}
+                                minDate={startDate}
+                            />
+                        </Control>
+                    </Field>
                 </Field.Body>
             </Field>
-            </form>
+            <Field horizontal>
+                <Field.Label/> {/* Left empty for spacing  */}
+                <Field.Body>
+                    <Field>
+                        <Control>
+                            <Button color="link">Submit</Button>
+                        </Control>
+                    </Field>
+                </Field.Body>
+            </Field>
+        </form>
     );
 };
 

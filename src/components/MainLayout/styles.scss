@@ -25,11 +25,23 @@ title-header {
   margin: 16px;
 }
 
+.slaDropdown {
+  vertical-align: middle;
+  align-self: center;
+  margin-right: 10px;
+  font-weight: bold;
+}
 
-.Alert-banner{
+.groupDropdown {
+  vertical-align: middle;
+  align-self: center;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+.Alert-banner {
   font-size: 15;
-  text-justify: inter-word; 
-  text-justify: capitalize;
+  text-justify: inter-word;
   margin: 5px 5px;
 }
 
@@ -50,18 +62,18 @@ title-header {
 body {
   height: 95%;
   position: relative;
- }
+}
 
 .main-container {
   min-height: 75vh; /* will cover the 100% of viewport */
   overflow: hidden;
   display: block;
   position: relative;
- }
+}
 
 
 footer {
   height: 10px;
   bottom: 0;
   width: 100%;
- }
+}
