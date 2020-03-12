@@ -24,7 +24,7 @@ export default function ClearEandon(props: { clearSla: SlaFunction }) {
                                 {[0, 1, 2].map(value => (
                                     <Label key={value}>
                                         <Radio name="member" value={value} checked={sla === value}
-                                               onChange={(e) => setSla(value)}/> {value}
+                                               onChange={() => setSla(value)}/> {value}
                                     </Label>
                                 ))}
                             </Control>
