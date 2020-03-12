@@ -80,8 +80,14 @@ export default function MqttManager(settings: ISettings, setServerStatus: (val: 
     setServerStatus({message: "Connecting ", color: "warning"});
     _registerErrors(client);
     _registerChanges(client);
-    return () => {
+
+    function ClearSla(sla: number) {
+        client.publish("partalarm2/emailParser1/clearSla", sla.toString())
+    }
+
+    return [() => {
         console.log("disconnecting");
         client.end(true);
-    }
+    }, ClearSla];
+
 }

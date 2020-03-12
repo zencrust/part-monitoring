@@ -11,6 +11,7 @@ import ReportLayout from "../Report";
 import {isstring} from "../../Utils";
 import axios from "axios";
 import {ISettings, ServerStatus, StationData, StationStatusType} from "../../types";
+import ClearEandon from "../ClearEandon";
 
 interface IState {
     status: ServerStatus;
@@ -18,9 +19,11 @@ interface IState {
     stationData: StationStatusType;
     slaSelection: number;
     groups: string[];
+    clearSla: (sla: number) => void;
 }
 
 export default class MainLayout extends React.Component<any, IState> {
+    closeMqtt: any = undefined;
     constructor(props: any) {
         super(props);
         this.state = {
@@ -28,7 +31,9 @@ export default class MainLayout extends React.Component<any, IState> {
             settings: undefined,
             stationData: new Map<string, StationData>(),
             slaSelection: 0,
-            groups: []
+            groups: [],
+            clearSla: () => {
+            }
         }
     }
 
@@ -41,7 +46,7 @@ export default class MainLayout extends React.Component<any, IState> {
 
         axios.get<ISettings>("assets/config/settings.json")
             .then((settings) => {
-                const mqttSub = MqttManager(settings.data, (val => {
+                const [mqttSub, sla] = MqttManager(settings.data, (val => {
                         this.setState({status: val});
                     }),
                     (data: StationData) => {
@@ -53,7 +58,8 @@ export default class MainLayout extends React.Component<any, IState> {
                             this.setState({stationData: d});
                         }
                     });
-                this.setState({settings: settings.data});
+                this.closeMqtt = mqttSub;
+                this.setState({settings: settings.data, clearSla: sla});
             });
     }
 
@@ -171,6 +177,7 @@ export default class MainLayout extends React.Component<any, IState> {
                                                             locations={this.state.groups}
                                                             slaSelection={this.state.slaSelection}/>}/>
                             <Route path="/report" component={ReportLayout}/>
+                            <Route path='/clear' render={() => <ClearEandon clearSla={this.state.clearSla}/>}/>
                             <Route component={NotFound}/>
                         </Switch>
                     </Content>
