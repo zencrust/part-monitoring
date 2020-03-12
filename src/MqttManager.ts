@@ -51,7 +51,7 @@ export default function MqttManager(settings: ISettings, setServerStatus: (val: 
         client.on("reconnect", () => {
             console.log("connecting error");
             if (!client.connected) {
-                setServerStatus({message: "connection Failed", color: "danger"});
+                setServerStatus({message: "Connection Failed", color: "danger"});
             }
         });
         client.on("error", () => {
