@@ -35,31 +35,34 @@ function getGroupName(settings: ISettings, location: string) {
 
 function RecordToArray(alarms: StationStatusType, slaSelection: number, groups: string[], settings: ISettings) {
     const data = new Map<string, StationData[]>();
+
     let count = 0;
     alarms.forEach((v) => {
         if (v.IsActive && v.SlaLevel >= slaSelection) {
             let groupName = getGroupName(settings, v.Location) || "Misc";
             if (groups.length === 0 || (groupName !== undefined && groups.includes(groupName))) {
                 v.timeElapsed = Math.abs(new Date().getTime() - new Date(v.InitiateTime).getTime()) / 1000;
-                let groupArray: StationData[] | undefined = data.get(groupName);
-                if (groupArray === undefined) {
-                    groupArray = []
-                }
-
+                let groupArray: StationData[] = data.get(groupName) || [];
                 groupArray.push(v);
                 count += 1;
                 data.set(groupName, groupArray);
             }
         }
     });
-
     data.forEach((v, k) => v.sort((a, b) => b.timeElapsed - a.timeElapsed));
-    return [data, count];
+
+    let returnData = new Array<[string, StationData[]]>();
+    settings.groups.forEach(group => {
+        if (data.has(group.groupName)) {
+            returnData.push([group.groupName, data.get(group.groupName)]);
+        }
+    });
+
+    return [returnData, count];
 }
 
 function AlarmList(props: { alarms: StationStatusType, settings: ISettings, slaSelection: number, locations: string[] }) {
-    const [dataMap, count] = RecordToArray(props.alarms, props.slaSelection, props.locations, props.settings);
-    const dataArray = Array.from(dataMap as Map<string, StationData[]>);
+    const [dataArray, count] = RecordToArray(props.alarms, props.slaSelection, props.locations, props.settings);
 
     let loc = localStorage.getItem("SelectedLocations");
     let noActiveAndOn = "No eAndons currently active for";
@@ -82,11 +85,12 @@ function AlarmList(props: { alarms: StationStatusType, settings: ISettings, slaS
         <div>
             <PlaySound playSound={true}/>
             {dataArray.map((groups) =>
-                <div>
+                <div className="alarmdivHead" key={groups[0]}>
+                    <h2 className="groupTitle">
+                        <span>{groups[0]}</span>
+                        <span className="numberStyle">{groups[1].length}</span>
+                    </h2>
                     <List className="alarmHead" key={groups[0]}>
-                        <h2 className="groupTitle">
-                            <span>{groups[0]}</span>
-                        </h2>
                         {groups[1].map((item) =>
                             <List.Item key={item.AlertId}>
                                 <Card className="alarmCard">
