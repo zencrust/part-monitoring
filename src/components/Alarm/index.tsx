@@ -39,7 +39,7 @@ function RecordToArray(alarms: StationStatusType, slaSelection: number, groups: 
     let count = 0;
     alarms.forEach((v) => {
         if (v.IsActive && v.SlaLevel >= slaSelection) {
-            let groupName = getGroupName(settings, v.Location) || "Misc";
+            let groupName = getGroupName(settings, v.Location) || "Generator";
             if (groups.length === 0 || (groupName !== undefined && groups.includes(groupName))) {
                 v.timeElapsed = Math.abs(new Date().getTime() - new Date(v.InitiateTime).getTime()) / 1000;
                 let groupArray: StationData[] = data.get(groupName) || [];
@@ -50,20 +50,12 @@ function RecordToArray(alarms: StationStatusType, slaSelection: number, groups: 
         }
     });
     data.forEach((v, k) => v.sort((a, b) => b.timeElapsed - a.timeElapsed));
-
-    let returnData = new Array<[string, StationData[]]>();
-    settings.groups.forEach(group => {
-        if (data.has(group.groupName)) {
-            returnData.push([group.groupName, data.get(group.groupName)]);
-        }
-    });
-
-    return [returnData, count];
+    return [Array.from(data), count];
 }
 
 function AlarmList(props: { alarms: StationStatusType, settings: ISettings, slaSelection: number, locations: string[] }) {
-    const [dataArray, count] = RecordToArray(props.alarms, props.slaSelection, props.locations, props.settings);
-
+    const [data, count] = RecordToArray(props.alarms, props.slaSelection, props.locations, props.settings);
+    const dataArray = data as [string, StationData[]][];
     let loc = localStorage.getItem("SelectedLocations");
     let noActiveAndOn = "No eAndons currently active for";
     if (props.slaSelection === 3) {
