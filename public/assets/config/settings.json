@@ -9,76 +9,76 @@
     {
       "groupName": "Power",
       "locations": [
+        "Kizuna",
         "ACGDPS",
-        "XFA",
-        "XFA/XFDPS",
-        "XFA",
-        "XFA Control Board Assembly",
-        "XFA Heat Sink Assembly",
-        "XFA Main Integration",
-        "XFDPS",
-        "XFDPS Control Board Assembly",
-        "XFDPS EDLC Assembly",
-        "XFDPS Heat Sink Assembly",
-        "XFDPS Main Integration",
-        "XGA",
         "MRT_XGA2_Cold_Plate_Assy",
         "MRT_XGA2_Main_Integration",
         "MRT_XGA2_Output_Choke_Assy",
         "MRT_XGA2_Output_Filter_Board_Assy",
-        "XPS",
-        "MRT_XPS_Cold_Plate_Assy",
-        "MRT_XPS_Gate_Driver_&_Signal_Board_Assy",
-        "MRT_XPS_Main_Integration",
-        "MRT_XPS_Tranformer_Assy",
-        "XPS",
         "MRT_XPS2_Cold_Plate_Assy",
         "MRT_XPS2_Gate_Driver_&_PC2_Board_Assy",
         "MRT_XPS2_Main_Integration",
         "MRT_XPS2_Tranformer_Assy",
-        "RGA/RPS",
+        "MRT_XPS_Cold_Plate_Assy",
+        "MRT_XPS_Gate_Driver_&_Signal_Board_Assy",
+        "MRT_XPS_Main_Integration",
+        "MRT_XPS_Tranformer_Assy",
+        "MRW_Kiz_Amp_Chassis_Assy",
+        "MRW_Kiz_Amp_Main_Integration",
+        "MRW_Kiz_Amp_Sub_Assy_1",
+        "MRW_Kiz_Amp_Sub_Assy_2",
+        "MRW_Kiz_Amp_Testing",
+        "MRW_Kiz_PS_Chassis_Assy",
+        "MRW_Kiz_PS_Main_Integration",
+        "MRW_Kiz_PS_Sub_Assy",
+        "MRW_Kiz_PS_Testing",
+        "MRW_RPS_Cold_Plate_Assy",
+        "MRW_RPS_GD_PCII-2_Board_Assy",
+        "MRW_RPS_Main Integration",
+        "MRW_RPS_Transformer_Assy",
         "RGA",
         "RGA AC4 Board Assembly",
         "RGA Cold Plate Assembly",
         "RGA Main Integration",
         "RGA Output Choke Assembly",
         "RGA Output Filter Board Assembly",
+        "RGA/RPS",
         "RPS",
-        "MRW_RPS_GD_PCII-2_Board_Assy",
-        "MRW_RPS_Main Integration",
-        "MRW_RPS_Transformer_Assy",
-        "Kizuna",
         "SSSA",
-        "MRW_Kiz_Amp_Chassis_Assy",
-        "MRW_Kiz_Amp_Main_Integration",
-        "MRW_Kiz_Amp_Sub_Assy_1",
-        "MRW_Kiz_Amp_Sub_Assy_2",
-        "MRW_Kiz_Amp_Testing",
         "SSSPS",
-        "MRW_Kiz_PS_Chassis_Assy",
-        "MRW_Kiz_PS_Main_Integration",
-        "MRW_Kiz_PS_Sub_Assy",
-        "ACGDPS"
+        "XFA",
+        "XFA Control Board Assembly",
+        "XFA Heat Sink Assembly",
+        "XFA Main Integration",
+        "XFA/XFDPS",
+        "XFDPS",
+        "XFDPS Control Board Assembly",
+        "XFDPS EDLC Assembly",
+        "XFDPS Heat Sink Assembly",
+        "XFDPS Main Integration",
+        "XGA ||",
+        "XPS",
+        "XPS ||"
       ]
     },
     {
       "groupName": "Tables",
       "locations": [
-        "LH Table",
+        "OR Table",
         "MRTables",
-        "OR Table"
+        "LH Table"
       ]
     },
     {
       "groupName": "Coil",
       "locations": [
-        "PA Coil",
         "4CH AA Coil",
         "9E AA Coil",
+        "Loop Coil",
         "Flex Coil",
-        "Head Coil",
         "HNU Coil",
-        "Loop Coil"
+        "Head Coil",
+        "PA Coil"
       ]
     },
     {
@@ -118,13 +118,24 @@
     {
       "groupName": "Warehouse",
       "locations": [
-        "Incoming/Stores/FG"
+        "Warehouse: Incoming/Stores/FG"
       ]
     },
     {
-      "groupName": " Generator",
+      "groupName": "Generator",
       "locations": [
-        "60 DC Family"
+        "42 CT",
+        "42 CT ROHS",
+        "50 RAD",
+        "60 DC Family",
+        "80 RAD",
+        "Aretha",
+        "Aretha",
+        "Fast KV",
+        "Helios",
+        "Helios ROHS",
+        "Liberty",
+        "Lightning"
       ]
     }
   ]
