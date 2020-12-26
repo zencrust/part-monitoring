@@ -108,7 +108,7 @@ const ReportLayout: React.FC<Props> = (p) => {
                             <Control>
                                 <DatePicker
                                     selected={startDate}
-                                    onChange={date => setDate(date, setStartDate)}
+                                    onChange={date => setDate(date as Date, setStartDate)}
                                     showTimeSelect
                                     timeFormat="HH"
                                     timeIntervals={60}
@@ -132,7 +132,7 @@ const ReportLayout: React.FC<Props> = (p) => {
                     <Control>
                         <DatePicker
                             selected={endDate}
-                            onChange={date => setDate(date, setEndDate)}
+                            onChange={date => setDate(date as Date, setEndDate)}
                             showTimeSelect
                             timeFormat="HH"
                             timeIntervals={60}
