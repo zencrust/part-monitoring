@@ -1,8 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { Field, Label, Control, Button } from "rbx";
-import React, { useEffect, useState } from "react";
-import { isUndefined } from "util";
-import { ToDateTimeFormat, ToTimeFormat } from "../../Utils/index";
+import React, { useEffect, useState, useCallback } from "react";
 import "./styles.scss";
 
 import DatePicker from "react-datepicker";
@@ -17,29 +15,36 @@ export interface ILog {
     comments: string;
 }
 
-interface IState {
-    logs: ILog[] | undefined;
-    limit: number;
-    offset: number;
-    error: boolean;
-}
 export interface Props extends React.ComponentPropsWithoutRef<"div"> { }
 
 const ReportLayout: React.FC<Props> = (p) => {
-    var stdate = new Date();
-    stdate.setDate(stdate.getDate() - 30);
-    const [startDate, setStartDate] = useState(stdate);
-    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState<Date>();
+    const [endDate, setEndDate] = useState<Date>();
 
-    const setDate = (date: Date | null, f: React.Dispatch<React.SetStateAction<Date>> ) => {
-        if(date != null){
-            f(date);
+    const setDate = (date: Date | null, option: "start" | "end" ) => {
+        if(date != null && date !== undefined){
+            if(option === "start"){
+                setStartDate(date);
+            }else if(option === "end"){
+                setEndDate(date);
+            }
+
         }
     }
+    
+    useEffect(
+        () =>
+        {
+            var stdate = new Date();
+            stdate.setDate(stdate.getDate() - 30);
+            setStartDate(stdate);
+            setEndDate(new Date());
+        }
+    , []);
 
-    const handleSubmit = (event : any) => 
+    const handleSubmit = useCallback((e : any) => 
     {
-        event.preventDefault();
+        e.preventDefault();
         const uri = "/api/v1/getTimereport";
         const CancelToken = axios.CancelToken;
         const source = CancelToken.source();
@@ -72,30 +77,7 @@ const ReportLayout: React.FC<Props> = (p) => {
             source.cancel("component unmounted");
         };
 
-        // if (error) {
-        //     return (
-        //         <div className="errorText">
-        //             Error occcured while fetching records. Try refreshing the page to retry
-        //         </div>
-        //     );
-        // }
-
-        // if (isUndefined(logs)) {
-        //     return (
-        //         <div className="errorText">
-        //             Please wait while fetching logs...
-        //         </div>
-        //     );
-        // }
-
-        // if (logs.length === undefined) {
-        //     return (
-        //         <div className="errorText">
-        //             No logs found
-        //         </div>
-        //     );
-        // }
-    }
+    }, [startDate, endDate]);
 
     return (
             <form onSubmit={handleSubmit} className="center">
@@ -108,7 +90,7 @@ const ReportLayout: React.FC<Props> = (p) => {
                             <Control>
                                 <DatePicker
                                     selected={startDate}
-                                    onChange={date => setDate(date as Date, setStartDate)}
+                                    onChange={date => setDate(date as Date, "start")}
                                     showTimeSelect
                                     timeFormat="HH"
                                     timeIntervals={60}
@@ -132,7 +114,7 @@ const ReportLayout: React.FC<Props> = (p) => {
                     <Control>
                         <DatePicker
                             selected={endDate}
-                            onChange={date => setDate(date as Date, setEndDate)}
+                            onChange={date => setDate(date as Date, "end")}
                             showTimeSelect
                             timeFormat="HH"
                             timeIntervals={60}

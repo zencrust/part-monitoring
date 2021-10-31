@@ -1,12 +1,11 @@
 import { Card, Content } from "rbx";
-import React from "react";
-import { isUndefined } from "util";
+import React, { FC, useMemo } from "react";
 import { IStationStatus, StationStatusType } from "../MainLayout";
 import WifiIndicator, { WiFiSignalIndicator } from "../WifiIndicator";
 import "./styles.scss";
 
 function getDateTimeString(epochTime: number | undefined) {
-    if (isUndefined(epochTime)) {
+    if (epochTime === undefined) {
         return "never";
     }
 
@@ -38,10 +37,6 @@ function calculateWifiSignal(isAlive: boolean, v: number): WiFiSignalIndicator {
     return "UNUSABLE";
 }
 
-interface Props extends React.ComponentPropsWithoutRef<"div"> {
-    status: StationStatusType;
-}
-
 function RecordToArray(alarms: StationStatusType) {
     const retval: IStationStatus[] = [];
     alarms.forEach( (val, k) => {
@@ -50,9 +45,12 @@ function RecordToArray(alarms: StationStatusType) {
 
     return retval;
 }
+interface StationStatusProps {
+    status: StationStatusType;
+};
 
-function StationStatus(props: Props) {
-    const val = RecordToArray(props.status);
+const StationStatus: FC<StationStatusProps> = ({status}) => {
+    const val = useMemo(()=> RecordToArray(status), [status]);
     return(
     <div className="statushead">
         {val.map((item) =>

@@ -1,17 +1,12 @@
 import {Card, Content, List, Progress} from "rbx";
-import React from "react";
-import { isUndefined } from "util";
+import React, { FC } from "react";
 import { ISettings } from "../../MqttManager";
 import { ToTimeFormat } from "../../Utils/index";
 import {IStationStatus, StationStatusType} from "../MainLayout";
 import PlaySound from "../PlaySound/index";
 import "./styles.scss";
 
-function calculateColor(time: number, settings?: ISettings) {
-    if (isUndefined(settings)) {
-        return "warning";
-    }
-
+function calculateColor(time: number, settings: ISettings) {
     const t = time / settings.MaxWaitTime;
     if (t < 0.5) {
         return "success";
@@ -35,8 +30,14 @@ function RecordToArray(alarms: StationStatusType) {
     return retval;
 }
 
-function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
-    const val = RecordToArray(props.alarms);
+interface AlarmProps {
+    alarms: StationStatusType;
+    settings: ISettings;
+};
+
+const AlarmList: FC<AlarmProps> = ({ alarms, settings }) => {
+
+    const val = RecordToArray(alarms);
     if (val.length === 0) {
         return(
             <div className="allClear">
@@ -62,7 +63,7 @@ function AlarmList(props: {alarms: StationStatusType, settings?: ISettings}) {
                             </Card.Header>
                             <Card.Content>
                                 <Content>
-                                    <Progress value={item.time} min={0} max={isUndefined(props.settings) ? 30 : props.settings.MaxWaitTime} color={calculateColor(item.time, props.settings)}/>
+                                    <Progress value={item.time} min={0} max={settings.MaxWaitTime} color={calculateColor(item.time, settings)}/>
                                 </Content>
                             </Card.Content>
                         </Card>

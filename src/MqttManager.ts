@@ -43,21 +43,52 @@ export interface ISettings {
     MaxWaitTime: number;
 }
 
-export interface IMqttConstructed {
-    disconnect: VoidFunction;
-    settings: ISettings;
-}
+const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
 
-function CreateMqttValue(disconnect: VoidFunction, settings: ISettings): IMqttConstructed {
-    return { disconnect, settings };
-}
+const registerChanges = (client: mqtt.Client, setValues: IValueFuntionType) => {
+    console.log("_registerChanges");
+    client.on("message", (topic, msg) => {
+        // console.log(topic);
 
-export default function MqttManager(setServerStatus: (val: ServerStatus) => void,
-                                    setValues: IValueFuntionType) {
+        const [, deviceId, func, ch] = topic.split("/");
+        if (func === "dio" && ch === "Switch Pressed") {
 
-    const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
+            let timeDelay = parseInt(msg.toString());
+            timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
+            setValues(deviceId, CreateNumericValueType("time", timeDelay));
+        } else if (func === "heartbeat") {
+            setValues(deviceId, CreateBooleanValueType(false));
+        } else if (func === "telemetry") {
+            if (ch === "last update time") {
+                setValues(deviceId, CreateNumericValueType("lastUpdateTime", parseInt(msg.toString())));
+            } else if (ch === "wifi Signal Strength") {
+                setValues(deviceId, CreateNumericValueType("wifiStrength", parseInt(msg.toString())));
+            }
+        }
+    });
+};
 
-    const options: IClientOptions = {
+const registerErrors = (client: mqtt.Client, setServerStatus: (val: ServerStatus) => void) => {
+    client.on("connect", () => {
+        console.log("Connected");
+        setServerStatus({ message: "Connection succeessful", color: "success" });
+    });
+    client.on("reconnect", () => {
+        console.log("connecting error");
+        if (!client.connected) {
+            setServerStatus({ message: "connection failed", color: "danger" });
+        }
+    });
+    client.on("error", () => {
+        console.log("connection error");
+        setServerStatus({ message: "connection failed ", color: "danger" });
+    });
+};
+
+
+const MqttManager = async (setServerStatus: (val: ServerStatus) => void, setValues: IValueFuntionType) =>
+{
+    const clientOptions: IClientOptions = {
         keepalive: 10,
         clientId,
         protocolId: "MQTT",
@@ -73,80 +104,28 @@ export default function MqttManager(setServerStatus: (val: ServerStatus) => void
         },
         rejectUnauthorized: false,
     };
+    setServerStatus({ message: "Connecting ", color: "warning" });
 
-    setServerStatus({ message: "Connecting ", color: "info" });
+    const v = await axios.get<ISettings>("assets/config/settings.json");
+    const settings = v.data;
+    // console.log(val.mqtt_server, options);
+    clientOptions.username = settings.user_name;
+    clientOptions.password = settings.password;
+    clientOptions.protocol = settings.protocol;
+    clientOptions.clean = true;
+    clientOptions.servers = [{
+        host: settings.mqtt_server,
+        port: settings.port,
+        protocol: settings.protocol,
+    }];
+    
+    // console.log(val);
+    const client = mqtt.connect(clientOptions);
+    client.subscribe("partalarm/#", { qos: 2 });
+    console.log("connection sub", settings.mqtt_server);
+    registerErrors(client, setServerStatus);
+    registerChanges(client, setValues);
+    return {client, settings};
+};
 
-    const _registerChanges = (client: mqtt.MqttClient) => {
-        console.log("_registerChanges");
-        client.on("message", (topic, msg) => {
-            // console.log(topic);
-
-            const [, deviceId, func, ch] = topic.split("/");
-            if (func === "dio" && ch === "Switch Pressed") {
-
-                let timeDelay = parseInt(msg.toString());
-                timeDelay = isNaN(timeDelay) ? 0 : timeDelay;
-                setValues(deviceId, CreateNumericValueType("time", timeDelay));
-            } else if (func === "heartbeat") {
-                setValues(deviceId, CreateBooleanValueType(false));
-            } else if (func === "telemetry") {
-                if (ch === "last update time") {
-                    setValues(deviceId, CreateNumericValueType("lastUpdateTime", parseInt(msg.toString())));
-                } else if (ch === "wifi Signal Strength") {
-                    setValues(deviceId, CreateNumericValueType("wifiStrength", parseInt(msg.toString())));
-                }
-            }
-        });
-    };
-
-    const _registerErrors = (client: mqtt.MqttClient) => {
-        client.on("connect", () => {
-            console.log("Connected");
-            setServerStatus({ message: "Connection succeessful", color: "success" });
-        });
-        client.on("reconnect", () => {
-            console.log("connecting error");
-            if (!client.connected) {
-                setServerStatus({ message: "connection failed", color: "danger" });
-            }
-        });
-        client.on("error", () => {
-            console.log("connection error");
-            setServerStatus({ message: "connection failed ", color: "danger" });
-        });
-    };
-
-    const returnPromise = new Promise<IMqttConstructed>((resolve, reject) => {
-        axios.get<ISettings>("assets/config/settings.json")
-            .then((v) => {
-                const val = v.data;
-                // console.log(val.mqtt_server, options);
-                options.username = val.user_name;
-                options.password = val.password;
-                options.protocol = val.protocol;
-                options.clean = true;
-                options.servers = [{
-                    host: val.mqtt_server,
-                    port: val.port,
-                    protocol: val.protocol,
-                }];
-                // console.log(val);
-                const client = mqtt.connect(options);
-                client.subscribe("partalarm/#", { qos: 2 });
-                console.log("connection sub", val.mqtt_server);
-                setServerStatus({ message: "Connecting ", color: "warning" });
-                _registerErrors(client);
-                _registerChanges(client);
-                resolve(CreateMqttValue(() => {
-                    console.log("disconnecting");
-                    client.end(true);
-                }, val));
-            })
-            .catch((e) => {
-                reject(e);
-                console.log("error reading status file", e);
-            });
-    });
-
-    return returnPromise;
-}
+export default MqttManager;
