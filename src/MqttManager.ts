@@ -41,6 +41,8 @@ export interface ISettings {
     password?: string;
     port: number;
     MaxWaitTime: number;
+    mainTopic: string;
+    panelHeader: string;
 }
 
 const clientId = "mqttjs_" + Math.random().toString(16).substr(2, 8);
@@ -108,6 +110,7 @@ const MqttManager = async (setServerStatus: (val: ServerStatus) => void, setValu
 
     const v = await axios.get<ISettings>("assets/config/settings.json");
     const settings = v.data;
+
     // console.log(val.mqtt_server, options);
     clientOptions.username = settings.user_name;
     clientOptions.password = settings.password;
@@ -121,7 +124,7 @@ const MqttManager = async (setServerStatus: (val: ServerStatus) => void, setValu
     
     // console.log(val);
     const client = mqtt.connect(clientOptions);
-    client.subscribe("partalarm/#", { qos: 2 });
+    client.subscribe(`${settings.mainTopic}/#`, { qos: 2 });
     console.log("connection sub", settings.mqtt_server);
     registerErrors(client, setServerStatus);
     registerChanges(client, setValues);

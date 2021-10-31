@@ -4,5 +4,7 @@
     "user_name": "",
     "password": "",
 	"protocol": "ws",
-    "MaxWaitTime": 300
+    "MaxWaitTime": 300,
+    "mainTopic": "partalarm",
+    "panelHeader": "Kit Request Dashboard"
 }

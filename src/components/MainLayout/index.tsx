@@ -100,7 +100,7 @@ const MainLayout = (props: any) => {
         <Navbar.Brand>
           <Navbar.Item href="#">
             <div className="title-header">
-              Kit Request Dashboard
+              {settings.panelHeader}
             </div>
           </Navbar.Item>
         </Navbar.Brand>
